@@ -617,6 +617,67 @@
     box-shadow: 0 5px 20px rgba(234, 67, 53, 0.2);
 }
 
+/* Developer Contact Buttons — Brand Colors */
+.dev-wa i {
+    color: #25D366;
+}
+
+.dev-wa {
+    border-color: rgba(37, 211, 102, 0.2);
+}
+
+.dev-wa:hover {
+    background: rgba(37, 211, 102, 0.15);
+    border-color: #25D366;
+    transform: scale(1.1);
+    box-shadow: 0 5px 20px rgba(37, 211, 102, 0.2);
+}
+
+.dev-fb i {
+    color: #1877F2;
+}
+
+.dev-fb {
+    border-color: rgba(24, 119, 242, 0.2);
+}
+
+.dev-fb:hover {
+    background: rgba(24, 119, 242, 0.15);
+    border-color: #1877F2;
+    transform: scale(1.1);
+    box-shadow: 0 5px 20px rgba(24, 119, 242, 0.2);
+}
+
+.dev-li i {
+    color: #0077B5;
+}
+
+.dev-li {
+    border-color: rgba(10, 102, 194, 0.2);
+}
+
+.dev-li:hover {
+    background: rgba(10, 102, 194, 0.15);
+    border-color: #0077B5;
+    transform: scale(1.1);
+    box-shadow: 0 5px 20px rgba(10, 102, 194, 0.2);
+}
+
+.dev-ig i {
+    color: #E4405F;
+}
+
+.dev-ig {
+    border-color: rgba(228, 64, 95, 0.2);
+}
+
+.dev-ig:hover {
+    background: rgba(228, 64, 95, 0.15);
+    border-color: #E4405F;
+    transform: scale(1.1);
+    box-shadow: 0 5px 20px rgba(228, 64, 95, 0.2);
+}
+
 /* About Footer */
 .x-about-footer {
     text-align: center;
