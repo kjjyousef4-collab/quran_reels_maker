@@ -526,13 +526,21 @@ function updateAyahLimits() {
     checkWarn();
 }
 
-// Device detection — 3 tiers for best performance
+// ── SMART DEVICE SCORING ──
+// Measures device capability once, drives all adaptive behavior
 const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || window.innerWidth < 768;
-const isOldPhone = isMobile && (
-    (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) ||
-    (navigator.deviceMemory && navigator.deviceMemory <= 4) ||
-    window.innerWidth <= 400
-);
+const _cores = navigator.hardwareConcurrency || 4;
+const _ram = navigator.deviceMemory || 4;
+const deviceScore = Math.min(_cores / 2, 5) + Math.min(_ram / 2, 5); // 0-10
+const isOldPhone = isMobile && deviceScore <= 3;
+
+// Adaptive timing — weak devices rest more, powerful devices go full speed
+const YIELD_DELAY = deviceScore >= 8 ? 0 : deviceScore >= 5 ? 8 : deviceScore >= 3 ? 20 : 50;  // ms
+const YIELD_EVERY = deviceScore >= 8 ? 15 : deviceScore >= 5 ? 8 : deviceScore >= 3 ? 4 : 2;   // frames
+const PREVIEW_EVERY = deviceScore >= 8 ? 8 : deviceScore >= 5 ? 12 : deviceScore >= 3 ? 20 : 40;  // frames
+const FLUSH_EVERY = deviceScore >= 8 ? 60 : deviceScore >= 5 ? 40 : deviceScore >= 3 ? 25 : 15;  // frames
+
+console.log(`📊 Device: ${_cores} cores, ${_ram}GB RAM → score ${deviceScore.toFixed(1)} | yield ${YIELD_DELAY}ms every ${YIELD_EVERY}f | preview every ${PREVIEW_EVERY}f`);
 
 function checkWarn() {
     const cnt = (parseInt($('ayahEnd').value, 10) || 1) - (parseInt($('ayahStart').value, 10) || 1) + 1;
@@ -892,7 +900,7 @@ function showOk(blob) {
     $('successBox').style.display = 'flex'; $('errorBox').style.display = 'none';
 }
 function setGen(v) { isGenerating = v; $('generateBtn').disabled = v; v ? $('generateBtn').classList.add('loading') : $('generateBtn').classList.remove('loading'); }
-function yieldUI() { return new Promise(r => setTimeout(r, isOldPhone ? 32 : isMobile ? 16 : 0)); }
+function yieldUI() { return new Promise(r => setTimeout(r, YIELD_DELAY)); }
 
 /* ── MAIN GENERATE ── */
 async function handleGenerate() {
@@ -905,14 +913,9 @@ async function handleGenerate() {
     const recIdx = parseInt($('reciterSelect').value, 10);
     let q = $('qualitySelect').value;
 
-    // AUTO-DOWNGRADE: old phones → fast (360p), mobile → medium (480p)
-    if (isOldPhone && q !== 'fast') {
-        q = 'fast';
-        updProg(0, '📱 وضع الأداء: جودة خفيفة لضمان عدم التوقف');
-        await yieldUI();
-    } else if (isMobile && (q === 'fullhd' || q === 'uhd' || q === 'high')) {
-        q = 'medium';
-        updProg(0, '📱 تم تقليل الجودة تلقائياً لأداء أفضل على الهاتف');
+    // Show warning on old phone but DON'T force quality change — user decides
+    if (isOldPhone) {
+        updProg(0, '📱 جهازك قد يكون بطيئاً — لو توقف جرّب جودة أقل أو آيات أقل');
         await yieldUI();
     }
     const prof = QUALITY[q];
@@ -960,7 +963,27 @@ async function handleGenerate() {
         updProg(20, 'تحميل الصور...');
         usedImageIds.clear();
         const totalScenes = ayahs.length;
-        const uniqueCount = Math.min(totalScenes, isOldPhone ? 2 : isMobile ? 3 : 6);
+        // Smart Image Count: small verse count = always 1:1, large = adapt to device
+        const calcSmartImageCount = (totalVerses) => {
+            // ≤8 verses? Any device handles that — 1 image per verse
+            if (totalVerses <= 8) return totalVerses;
+
+            // 9+ verses: scale by global deviceScore
+            let ratio;
+            if (deviceScore >= 8) ratio = 1.0;
+            else if (deviceScore >= 5) ratio = 0.5 + (deviceScore - 5) * 0.15;
+            else if (deviceScore >= 3) ratio = 0.3 + (deviceScore - 3) * 0.1;
+            else ratio = 0.25;
+
+            return Math.min(Math.max(4, Math.ceil(totalVerses * ratio)), totalVerses);
+        };
+
+        const uniqueCount = calcSmartImageCount(totalScenes);
+        const msg = uniqueCount === totalScenes
+            ? `تحميل ${uniqueCount} صورة مميزة — صورة لكل آية ✨`
+            : `تحميل ${uniqueCount} صورة مميزة لـ ${totalScenes} مشهد...`;
+        updProg(20, msg);
+        console.log(`📊 Device score ${deviceScore.toFixed(1)} | ${totalScenes} verses → ${uniqueCount} unique images`);
         const categoryQueries = getSelectedBgQueries();
         const uniqueImgs = await Promise.all(
             Array.from({ length: uniqueCount }, (_, i) => {
@@ -1073,7 +1096,7 @@ async function encodeWebCodecs(rCtx, pCtx, w, h, fps, fs, ayahs, imgs, merged, s
         const vf = new VideoFrame($('recordCanvas'), { timestamp: Math.round(f * fi) });
         vEnc.encode(vf, { keyFrame: f % (fps * 2) === 0 }); vf.close();
         // Flush encoder periodically to prevent backpressure buildup
-        if (f % 30 === 29) { await vEnc.flush(); }
+        if (f % FLUSH_EVERY === FLUSH_EVERY - 1) { await vEnc.flush(); }
         if (f % yieldEvery === 0) {
             const el = (performance.now() - t0) / 1000, left = totalFrames - f, spd = f > 0 ? f / el : fps;
             updProg(35 + (f / totalFrames) * 55, 'تصدير: إطار ' + f + '/' + totalFrames, left / spd);
@@ -1134,8 +1157,8 @@ async function encodeFallback(rCtx, pCtx, w, h, fps, fs, ayahs, imgs, merged, sr
     rec.start(100); src.start(0);
 
     const t0 = performance.now();
-    const yieldEvery = isOldPhone ? 2 : isMobile ? 4 : 12;
-    const previewEvery = isOldPhone ? 32 : isMobile ? 16 : 8;
+    const yieldEvery = YIELD_EVERY;
+    const previewEvery = PREVIEW_EVERY;
     for (let f = 0; f < totalFrames; f++) {
         if (cancelled) { rec.stop(); src.stop(); ac.close(); throw '__CANCEL__'; }
         drawFrame(rCtx, w, h, fs, ayahs, imgs, f / fps);
