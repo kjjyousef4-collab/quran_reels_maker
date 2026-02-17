@@ -1,0 +1,276 @@
+/* ═══════════════════════════════════════
+   QURAN REELS MAKER - DESIGN SYSTEM
+   Premium Islamic AI Platform 2026
+   ═══════════════════════════════════════ */
+
+/* ────────────────────────────────────────
+   CSS VARIABLES - DESIGN TOKENS
+   ──────────────────────────────────────── */
+
+:root {
+    /* ── Color System ── */
+
+    /* Light Theme */
+    --color-bg-primary: #FAFAF8;
+    --color-bg-secondary: #FFFFFF;
+    --color-bg-elevated: #FFFFFF;
+    --color-bg-overlay: rgba(255, 255, 255, 0.9);
+
+    --color-text-primary: #0F172A;
+    --color-text-secondary: #475569;
+    --color-text-tertiary: #94A3B8;
+
+    --color-accent-gold: #C6A756;
+    --color-accent-gold-light: #E5D5A8;
+    --color-accent-gold-dark: #9A824A;
+
+    --color-accent-green: #2E7D32;
+    --color-accent-green-light: #66BB6A;
+
+    --color-border: #E2E8F0;
+    --color-border-hover: #CBD5E1;
+
+    --color-shadow-sm: rgba(15, 23, 42, 0.04);
+    --color-shadow-md: rgba(15, 23, 42, 0.08);
+    --color-shadow-lg: rgba(15, 23, 42, 0.12);
+
+    /* ── Typography ── */
+    --font-arabic: 'Cairo', 'Amiri', serif;
+    --font-english: 'Inter', sans-serif;
+    --font-display: 'Amiri', serif;
+
+    --font-size-xs: 0.75rem;
+    /* 12px */
+    --font-size-sm: 0.875rem;
+    /* 14px */
+    --font-size-base: 1rem;
+    /* 16px */
+    --font-size-lg: 1.125rem;
+    /* 18px */
+    --font-size-xl: 1.25rem;
+    /* 20px */
+    --font-size-2xl: 1.5rem;
+    /* 24px */
+    --font-size-3xl: 1.875rem;
+    /* 30px */
+    --font-size-4xl: 2.25rem;
+    /* 36px */
+
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+
+    --line-height-tight: 1.25;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.75;
+
+    /* ── Spacing System ── */
+    --space-1: 0.25rem;
+    /* 4px */
+    --space-2: 0.5rem;
+    /* 8px */
+    --space-3: 0.75rem;
+    /* 12px */
+    --space-4: 1rem;
+    /* 16px */
+    --space-5: 1.25rem;
+    /* 20px */
+    --space-6: 1.5rem;
+    /* 24px */
+    --space-8: 2rem;
+    /* 32px */
+    --space-10: 2.5rem;
+    /* 40px */
+    --space-12: 3rem;
+    /* 48px */
+    --space-16: 4rem;
+    /* 64px */
+    --space-20: 5rem;
+    /* 80px */
+
+    /* ── Border Radius ── */
+    --radius-sm: 0.5rem;
+    /* 8px */
+    --radius-md: 0.75rem;
+    /* 12px */
+    --radius-lg: 1rem;
+    /* 16px */
+    --radius-xl: 1.5rem;
+    /* 24px */
+    --radius-2xl: 2rem;
+    /* 32px */
+    --radius-full: 9999px;
+
+    /* ── Shadows ── */
+    --shadow-sm: 0 1px 2px 0 var(--color-shadow-sm);
+    --shadow-md: 0 4px 6px -1px var(--color-shadow-md), 0 2px 4px -1px var(--color-shadow-sm);
+    --shadow-lg: 0 10px 15px -3px var(--color-shadow-lg), 0 4px 6px -2px var(--color-shadow-md);
+    --shadow-xl: 0 20px 25px -5px var(--color-shadow-lg), 0 10px 10px -5px var(--color-shadow-md);
+
+    /* ── Transitions ── */
+    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* ── Z-Index Scale ── */
+    --z-dropdown: 1000;
+    --z-sticky: 1020;
+    --z-fixed: 1030;
+    --z-modal-backdrop: 1040;
+    --z-modal: 1050;
+    --z-popover: 1060;
+    --z-tooltip: 1070;
+}
+
+/* ────────────────────────────────────────
+   DARK THEME
+   ──────────────────────────────────────── */
+
+[data-theme="dark"] {
+    --color-bg-primary: #0B1220;
+    --color-bg-secondary: #111827;
+    --color-bg-elevated: #1F2937;
+    --color-bg-overlay: rgba(17, 24, 39, 0.95);
+
+    --color-text-primary: #F1F5F9;
+    --color-text-secondary: #CBD5E1;
+    --color-text-tertiary: #64748B;
+
+    --color-accent-gold: #D4AF6A;
+    --color-accent-gold-light: #E5C896;
+    --color-accent-gold-dark: #B8954D;
+
+    --color-accent-green: #66BB6A;
+    --color-accent-green-light: #81C784;
+
+    --color-border: #334155;
+    --color-border-hover: #475569;
+
+    --color-shadow-sm: rgba(0, 0, 0, 0.2);
+    --color-shadow-md: rgba(0, 0, 0, 0.3);
+    --color-shadow-lg: rgba(0, 0, 0, 0.4);
+
+    --shadow-sm: 0 1px 2px 0 var(--color-shadow-sm);
+    --shadow-md: 0 4px 6px -1px var(--color-shadow-md), 0 2px 4px -1px var(--color-shadow-sm);
+    --shadow-lg: 0 10px 15px -3px var(--color-shadow-lg), 0 4px 6px -2px var(--color-shadow-md);
+    --shadow-xl: 0 20px 25px -5px var(--color-shadow-lg), 0 10px 10px -5px var(--color-shadow-md);
+}
+
+/* ────────────────────────────────────────
+   BASE RESET & TYPOGRAPHY
+   ──────────────────────────────────────── */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    width: 100%;
+}
+
+body {
+    font-family: var(--font-arabic);
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    line-height: var(--line-height-normal);
+    transition: background-color var(--transition-base), color var(--transition-base);
+    overflow-x: hidden;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body[dir="ltr"] {
+    font-family: var(--font-english);
+}
+
+/* ────────────────────────────────────────
+   UTILITY CLASSES
+   ──────────────────────────────────────── */
+
+.text-primary {
+    color: var(--color-text-primary);
+}
+
+.text-secondary {
+    color: var(--color-text-secondary);
+}
+
+.text-tertiary {
+    color: var(--color-text-tertiary);
+}
+
+.text-accent {
+    color: var(--color-accent-gold);
+}
+
+.bg-primary {
+    background-color: var(--color-bg-primary);
+}
+
+.bg-secondary {
+    background-color: var(--color-bg-secondary);
+}
+
+.bg-elevated {
+    background-color: var(--color-bg-elevated);
+}
+
+.shadow-sm {
+    box-shadow: var(--shadow-sm);
+}
+
+.shadow-md {
+    box-shadow: var(--shadow-md);
+}
+
+.shadow-lg {
+    box-shadow: var(--shadow-lg);
+}
+
+.shadow-xl {
+    box-shadow: var(--shadow-xl);
+}
+
+.rounded-sm {
+    border-radius: var(--radius-sm);
+}
+
+.rounded-md {
+    border-radius: var(--radius-md);
+}
+
+.rounded-lg {
+    border-radius: var(--radius-lg);
+}
+
+.rounded-xl {
+    border-radius: var(--radius-xl);
+}
+
+.rounded-2xl {
+    border-radius: var(--radius-2xl);
+}
+
+.rounded-full {
+    border-radius: var(--radius-full);
+}
+
+.transition-fast {
+    transition: all var(--transition-fast);
+}
+
+.transition-base {
+    transition: all var(--transition-base);
+}
+
+.transition-slow {
+    transition: all var(--transition-slow);
+}

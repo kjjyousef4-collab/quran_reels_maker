@@ -1,0 +1,328 @@
+/* ================================================================
+   PROPER THEME SYSTEM - Light/Dark Mode Tokens
+   No hardcoded colors - everything uses CSS variables
+   ================================================================ */
+
+/* ================================================================
+   LIGHT MODE (Default)
+   Clean, modern, airy design
+   ================================================================ */
+
+:root,
+[data-theme="light"] {
+    /* Backgrounds */
+    --bg-primary: #F8F9FC;
+    --bg-secondary: #FFFFFF;
+    --bg-card: #FFFFFF;
+    --bg-elevated: #FFFFFF;
+
+    /* Text Colors */
+    --text-primary: #1a202c;
+    --text-secondary: #4a5568;
+    --text-tertiary: #718096;
+    --text-inverse: #FFFFFF;
+
+    /* Gold Accents - Soft in Light Mode */
+    --gold-primary: #d4af37;
+    --gold-light: #f0d060;
+    --gold-dark: #b8941f;
+    --gold-subtle: rgba(212, 175, 55, 0.1);
+    --gold-border: rgba(212, 175, 55, 0.2);
+
+    /* Borders & Dividers */
+    --border-color: #e2e8f0;
+    --border-light: #f7fafc;
+    --divider: rgba(0, 0, 0, 0.08);
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1);
+
+    /* Glass Effect - Subtle in Light */
+    --glass-bg: rgba(255, 255, 255, 0.8);
+    --glass-border: rgba(212, 175, 55, 0.15);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+
+    /* Status Colors */
+    --success: #48bb78;
+    --error: #f56565;
+    --warning: #ed8936;
+    --info: #4299e1;
+
+    /* Interactive States */
+    --hover-bg: rgba(212, 175, 55, 0.08);
+    --active-bg: rgba(212, 175, 55, 0.12);
+    --focus-ring: rgba(212, 175, 55, 0.4);
+
+    /* Overlay */
+    --overlay: rgba(0, 0, 0, 0.5);
+}
+
+/* ================================================================
+   DARK MODE
+   Deep navy, premium feel
+   ================================================================ */
+
+[data-theme="dark"] {
+    /* Backgrounds - Deep Navy */
+    --bg-primary: #0a0e1a;
+    --bg-secondary: #141827;
+    --bg-card: #1a1f35;
+    --bg-elevated: #232840;
+
+    /* Text Colors */
+    --text-primary: #f7fafc;
+    --text-secondary: #cbd5e0;
+    --text-tertiary: #a0aec0;
+    --text-inverse: #0a0e1a;
+
+    /* Gold Accents - Bright in Dark Mode */
+    --gold-primary: #f0d060;
+    --gold-light: #ffd97d;
+    --gold-dark: #d4af37;
+    --gold-subtle: rgba(240, 208, 96, 0.12);
+    --gold-border: rgba(240, 208, 96, 0.25);
+
+    /* Borders & Dividers */
+    --border-color: #2d3748;
+    --border-light: #1a202c;
+    --divider: rgba(255, 255, 255, 0.1);
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+    --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.6);
+
+    /* Glass Effect - Stronger in Dark */
+    --glass-bg: rgba(26, 31, 53, 0.7);
+    --glass-border: rgba(240, 208, 96, 0.2);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+
+    /* Status Colors - Adjusted for Dark */
+    --success: #68d391;
+    --error: #fc8181;
+    --warning: #f6ad55;
+    --info: #63b3ed;
+
+    /* Interactive States */
+    --hover-bg: rgba(240, 208, 96, 0.12);
+    --active-bg: rgba(240, 208, 96, 0.18);
+    --focus-ring: rgba(240, 208, 96, 0.5);
+
+    /* Overlay */
+    --overlay: rgba(0, 0, 0, 0.75);
+}
+
+/* ================================================================
+   BASE STYLES - Apply Theme Tokens
+   ================================================================ */
+
+body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Cards & Elevated Surfaces */
+.card,
+.profile-card,
+.verse-card,
+.preview-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-md);
+    color: var(--text-primary);
+}
+
+/* Glass Morphism Components */
+.verse-card,
+.profile-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+}
+
+/* Text Hierarchy */
+.section-title,
+.card-title,
+h1,
+h2,
+h3 {
+    color: var(--text-primary);
+}
+
+.section-subtitle,
+.verse-reference,
+p {
+    color: var(--text-secondary);
+}
+
+/* Borders */
+.modern-navbar,
+.modern-footer,
+.form-group {
+    border-color: var(--border-color);
+}
+
+/* Buttons - Theme Aware */
+.btn-primary {
+    background: linear-gradient(135deg, var(--gold-primary) 0%, var(--gold-dark) 100%);
+    color: var(--text-inverse);
+    box-shadow: 0 4px 12px var(--gold-subtle);
+}
+
+.btn-primary:hover {
+    box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+}
+
+.btn-secondary {
+    background: var(--gold-subtle);
+    border: 1px solid var(--gold-border);
+    color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+    background: var(--hover-bg);
+    border-color: var(--gold-primary);
+}
+
+/* Inputs & Selects */
+.input,
+.select {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+.input:focus,
+.select:focus {
+    border-color: var(--gold-primary);
+    box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+/* Navbar */
+.modern-navbar {
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+}
+
+.nav-link {
+    color: var(--text-secondary);
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: var(--gold-primary);
+}
+
+/* Footer */
+.modern-footer {
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
+    color: var(--text-secondary);
+}
+
+/* Sections */
+.share-section,
+.about-section {
+    background: transparent;
+}
+
+/* Alerts */
+.alert {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+}
+
+.alert-warning {
+    background: rgba(237, 137, 54, 0.1);
+    border-color: var(--warning);
+    color: var(--text-primary);
+}
+
+.alert-error {
+    background: rgba(245, 101, 101, 0.1);
+    border-color: var(--error);
+    color: var(--text-primary);
+}
+
+.alert-success {
+    background: rgba(72, 187, 120, 0.1);
+    border-color: var(--success);
+    color: var(--text-primary);
+}
+
+/* Progress Bar */
+.progress-bar {
+    background: var(--border-color);
+}
+
+.progress-fill {
+    background: linear-gradient(90deg, var(--gold-primary), var(--gold-light));
+}
+
+/* Skill Items */
+.skill-item {
+    background: var(--gold-subtle);
+    border: 1px solid var(--gold-border);
+    color: var(--text-primary);
+}
+
+.skill-item:hover {
+    background: var(--hover-bg);
+    border-color: var(--gold-primary);
+}
+
+/* Phone Mockup */
+.phone-mockup {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+}
+
+.preview-placeholder {
+    background: var(--bg-secondary);
+    color: var(--text-tertiary);
+}
+
+/* Particle Canvas - Adjust for Theme */
+[data-theme="light"] .particle-bg {
+    opacity: 0.4;
+}
+
+[data-theme="dark"] .particle-bg {
+    opacity: 0.6;
+}
+
+/* Aurora Effect - Theme Specific */
+[data-theme="light"] .aurora {
+    opacity: 0.15;
+}
+
+[data-theme="dark"] .aurora {
+    opacity: 0.25;
+}
+
+/* Remove any dark class if accidentally applied */
+html.dark {
+    /* Override any accidental dark class */
+    background: var(--bg-primary);
+}
+
+/* Ensure smooth theme transitions */
+* {
+    transition-property: background-color, border-color, color;
+    transition-duration: 0.2s;
+    transition-timing-function: ease;
+}
+
+/* Preserve animation transitions */
+*[class*="animate"],
+*[class*="transition"] {
+    transition-duration: inherit;
+}

@@ -1,0 +1,855 @@
+/* ═══════════════════════════════════════════════
+   PREMIUM FUTURISTIC SECTIONS — x-* Namespace
+   Zero side gaps · Full-width · Rotating verse
+   ═══════════════════════════════════════════════ */
+
+/* ── Scroll Reveal ── */
+.fade-up {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.fade-up.fade-up-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ── Container — NO max-width, edge-to-edge ── */
+.x-container {
+    width: 100%;
+    padding: 0 5vw;
+    position: relative;
+    z-index: 2;
+}
+
+/* ═══════════════════════════════════════
+   SHARE SECTION
+   ═══════════════════════════════════════ */
+.x-share {
+    position: relative;
+    padding: 5rem 0 4rem;
+    overflow: hidden;
+    background: linear-gradient(175deg, #020617 0%, #070d1f 35%, #0a1128 70%, #060e20 100%);
+    min-height: 100vh;
+}
+
+/* Ambient Glow */
+.x-ambient {
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse 60% 50% at 50% 30%, rgba(212, 175, 55, 0.045) 0%, transparent 100%),
+        radial-gradient(ellipse 50% 55% at 50% 75%, rgba(59, 130, 246, 0.03) 0%, transparent 100%);
+    pointer-events: none;
+    animation: ambientShift 18s ease-in-out infinite alternate;
+}
+
+@keyframes ambientShift {
+    0% {
+        opacity: 0.6;
+        transform: scale(1) rotate(0deg);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1.06) rotate(0.5deg);
+    }
+}
+
+/* ── Hero ── */
+.x-share-hero {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.x-hero-title {
+    font-family: 'Cairo', 'Tajawal', sans-serif;
+    font-size: clamp(2.2rem, 6vw, 4rem);
+    font-weight: 800;
+    color: #f5f0e6;
+    line-height: 1.3;
+    margin: 0 0 1.25rem;
+}
+
+.x-hero-line {
+    width: 80px;
+    height: 3px;
+    margin: 0 auto;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    border-radius: 2px;
+    animation: linePulse 3s ease-in-out infinite;
+}
+
+@keyframes linePulse {
+
+    0%,
+    100% {
+        opacity: 0.6;
+        width: 80px;
+    }
+
+    50% {
+        opacity: 1;
+        width: 120px;
+    }
+}
+
+/* ── Rotating Verse — Single Card ── */
+.x-rotating-verse {
+    position: relative;
+    min-height: 180px;
+    margin-bottom: 2.5rem;
+    background: rgba(255, 255, 255, 0.015);
+    border: 1px solid rgba(212, 175, 55, 0.08);
+    border-radius: 20px;
+    padding: 3rem 2.5rem;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    overflow: hidden;
+    transition: border-color 0.4s ease;
+}
+
+.x-rotating-verse:hover {
+    border-color: rgba(212, 175, 55, 0.16);
+}
+
+.x-rv-item {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem 2rem;
+    opacity: 0;
+    transform: translateY(15px);
+    transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+}
+
+.x-rv-item.x-rv-active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+/* Verse Text */
+.x-verse-arabic {
+    font-family: 'Amiri', 'Amiri Quran', serif;
+    font-size: clamp(1.5rem, 4vw, 2.4rem);
+    font-weight: 700;
+    color: #ede4cd;
+    line-height: 2.2;
+    margin: 0 0 0.75rem;
+    text-align: center;
+}
+
+.x-verse-ref {
+    display: block;
+    text-align: center;
+    font-family: 'Tajawal', sans-serif;
+    font-size: clamp(0.85rem, 1.5vw, 1rem);
+    font-weight: 500;
+    color: rgba(212, 175, 55, 0.55);
+}
+
+/* ── Motivation ── */
+.x-motivation {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.x-motivation p {
+    font-family: 'Tajawal', sans-serif;
+    font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+    color: rgba(255, 255, 255, 0.5);
+    line-height: 2;
+    margin: 0.2rem 0;
+}
+
+/* ── CTA Buttons ── */
+.x-cta-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.x-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    font-family: 'Tajawal', sans-serif;
+    font-weight: 700;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Primary — WhatsApp */
+.x-btn-primary {
+    width: 100%;
+    max-width: 600px;
+    padding: 1.35rem 3rem;
+    font-size: clamp(1.15rem, 2.5vw, 1.4rem);
+    color: #fff;
+    background: linear-gradient(135deg, #25D366 0%, #1da851 100%);
+    border-radius: 16px;
+    box-shadow: 0 4px 28px rgba(37, 211, 102, 0.2);
+}
+
+.x-btn-primary i {
+    font-size: 1.6rem;
+}
+
+.x-btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 40px rgba(37, 211, 102, 0.3);
+}
+
+.x-btn-primary:active {
+    transform: translateY(0);
+}
+
+/* Ticker Container — Seamless Infinite Loop */
+.x-share-ticker,
+.x-skills-ticker {
+    /* 🔥 الحل السحري: إجبار الشريط على LTR عشان الحركة تشتغل صح */
+    direction: ltr;
+
+    width: 100%;
+    margin: 0 auto;
+    overflow: hidden;
+    white-space: nowrap;
+    display: flex;
+    position: relative;
+    /* Masking for smooth fade at edges */
+    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+
+/* الشريط المتحرك */
+.x-ticker-track,
+.x-skills-track {
+    display: flex;
+    flex-shrink: 0;
+    width: max-content;
+    /* مع LTR، نستخدم -50% للحصول على seamless loop */
+    animation: scrollLinear 180s linear infinite;
+}
+
+/* Skills track speed */
+.x-skills-track {
+    animation-duration: 180s;
+}
+
+/* Items Groups */
+.x-ticker-group,
+.x-skills-group {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 16px;
+    padding-right: 16px;
+    flex-shrink: 0;
+}
+
+/* Interaction: Pause on hover */
+.x-share-ticker:hover .x-ticker-track,
+.x-skills-ticker:hover .x-skills-track {
+    animation-play-state: paused;
+}
+
+/* كود الحركة */
+@keyframes scrollLinear {
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        /* -50% مع 10 نسخ في بيئة LTR = seamless loop */
+        transform: translateX(-50%);
+    }
+}
+
+/* Button Item Styling */
+.x-btn-secondary {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    /* Changed from 0.6rem */
+    padding: 12px 20px;
+    /* Changed from 0.9rem 1.6rem */
+    font-size: 15px;
+    /* Changed from 0.95rem */
+    font-weight: 500;
+    /* Added/Changed */
+    text-decoration: none;
+    /* Added/Changed */
+    transition: all 0.3s ease;
+    /* Changed from cubic-bezier */
+    white-space: nowrap;
+    flex-shrink: 0;
+    /* Added */
+
+    /* 🔥 إرجاع الأزرار للعربي عشان النص والأيقونة يظهروا صح */
+    direction: rtl;
+
+    color: rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.x-btn-secondary i {
+    font-size: 1.4rem;
+    margin-bottom: 0;
+}
+
+.x-btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.16);
+}
+
+/* Tertiary — Outlined */
+.x-btn-tertiary {
+    padding: 1rem 2.2rem;
+    font-size: clamp(0.95rem, 1.8vw, 1.1rem);
+    color: rgba(212, 175, 55, 0.7);
+    background: transparent;
+    border: 1px solid rgba(212, 175, 55, 0.15);
+    border-radius: 12px;
+}
+
+.x-btn-tertiary i {
+    font-size: 1.1rem;
+}
+
+.x-btn-tertiary:hover {
+    border-color: rgba(212, 175, 55, 0.35);
+    color: rgba(212, 175, 55, 0.95);
+    background: rgba(212, 175, 55, 0.04);
+    transform: translateY(-2px);
+}
+
+/* ═══════════════════════════════════════
+   ABOUT SECTION
+   ═══════════════════════════════════════ */
+.x-about {
+    position: relative;
+    padding: 5rem 0 4rem;
+    background: linear-gradient(175deg, #060e20 0%, #0a1128 55%, #070d1f 100%);
+    border-top: 1px solid rgba(212, 175, 55, 0.05);
+    min-height: 100vh;
+}
+
+.x-about-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.x-about-icon {
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(212, 175, 55, 0.06);
+    border: 1px solid rgba(212, 175, 55, 0.12);
+    border-radius: 50%;
+    animation: iconFloat 4s ease-in-out infinite;
+}
+
+@keyframes iconFloat {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-6px);
+    }
+}
+
+.x-about-icon i {
+    font-size: 1.8rem;
+    color: var(--gold);
+}
+
+.x-about-title {
+    font-family: 'Cairo', 'Tajawal', sans-serif;
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--gold), var(--gold-l));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0;
+}
+
+/* Bio */
+.x-about-bio {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.x-about-name {
+    font-family: 'Tajawal', sans-serif;
+    font-size: clamp(1.5rem, 3.5vw, 2.2rem);
+    font-weight: 700;
+    color: #f5f0e6;
+    margin: 0 0 0.6rem;
+}
+
+.x-about-role {
+    font-family: 'Tajawal', sans-serif;
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.45);
+    margin: 0;
+    line-height: 1.8;
+}
+
+/* Skills Grid */
+.x-skills-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    margin: 0 auto 3.5rem;
+}
+
+.x-skill {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.75rem 1rem;
+    background: rgba(255, 255, 255, 0.015);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 16px;
+    transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.x-skill i {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    color: var(--gold);
+    opacity: 0.85;
+    transition: transform 0.3s ease;
+}
+
+.x-skill span {
+    font-family: 'Tajawal', sans-serif;
+    font-size: clamp(0.9rem, 1.8vw, 1.1rem);
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.65);
+    text-align: center;
+}
+
+.x-skill:hover {
+    transform: translateY(-4px);
+    background: rgba(212, 175, 55, 0.035);
+    border-color: rgba(212, 175, 55, 0.12);
+}
+
+.x-skill:hover i {
+    transform: scale(1.15);
+}
+
+/* Contact CTA */
+.x-contact-cta {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.x-contact-cta p {
+    font-family: 'Tajawal', sans-serif;
+    font-size: clamp(0.95rem, 1.8vw, 1.15rem);
+    color: rgba(255, 255, 255, 0.5);
+    margin: 0.2rem 0;
+    line-height: 1.9;
+}
+
+/* Social Icons — Circular Glass */
+.x-social {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    margin-bottom: 3.5rem;
+    flex-wrap: wrap;
+}
+
+.x-social-btn {
+    width: 72px;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.025);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.x-social-btn i {
+    font-size: 1.75rem;
+    color: rgba(255, 255, 255, 0.6);
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.x-social-btn:hover {
+    transform: scale(1.1);
+}
+
+.x-social-btn:hover i {
+    transform: scale(1.05);
+}
+
+/* Brand Colors & Hovers */
+.x-btn-secondary {
+    transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+/* Facebook */
+.x-fb {
+    border-color: rgba(24, 119, 242, 0.2);
+    color: rgba(24, 119, 242, 0.9);
+}
+
+.x-fb i {
+    color: #1877F2;
+}
+
+.x-fb:hover {
+    background: rgba(24, 119, 242, 0.15);
+    border-color: #1877F2;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 20px rgba(24, 119, 242, 0.2);
+}
+
+/* Twitter / X */
+.x-tw {
+    border-color: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.x-tw i {
+    color: #fff;
+}
+
+.x-tw:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #fff;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 20px rgba(255, 255, 255, 0.15);
+}
+
+/* Telegram */
+.x-tg {
+    border-color: rgba(36, 161, 222, 0.2);
+    color: rgba(36, 161, 222, 0.9);
+}
+
+.x-tg i {
+    color: #24A1DE;
+}
+
+.x-tg:hover {
+    background: rgba(36, 161, 222, 0.15);
+    border-color: #24A1DE;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 20px rgba(36, 161, 222, 0.2);
+}
+
+/* LinkedIn */
+.x-li {
+    border-color: rgba(10, 102, 194, 0.2);
+    color: rgba(10, 102, 194, 0.9);
+}
+
+.x-li i {
+    color: #0077B5;
+}
+
+.x-li:hover {
+    background: rgba(10, 102, 194, 0.15);
+    border-color: #0077B5;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 20px rgba(10, 102, 194, 0.2);
+}
+
+/* Gmail */
+.x-gm {
+    border-color: rgba(234, 67, 53, 0.2);
+    color: rgba(234, 67, 53, 0.9);
+}
+
+.x-gm i {
+    color: #EA4335;
+}
+
+.x-gm:hover {
+    background: rgba(234, 67, 53, 0.15);
+    border-color: #EA4335;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 20px rgba(234, 67, 53, 0.2);
+}
+
+/* About Footer */
+.x-about-footer {
+    text-align: center;
+}
+
+.x-footer-msg {
+    font-family: 'Tajawal', sans-serif;
+    font-size: clamp(0.95rem, 1.5vw, 1.1rem);
+    color: rgba(212, 175, 55, 0.5);
+    margin: 0;
+}
+
+/* ═══════════════════════════════════════
+   SITE FOOTER
+   ═══════════════════════════════════════ */
+.x-footer {
+    text-align: center;
+    padding: 2.5rem 5vw;
+    background: #020617;
+    border-top: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.x-footer p {
+    font-family: 'Tajawal', sans-serif;
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.4);
+    margin: 0.3rem 0;
+    line-height: 1.7;
+}
+
+.x-copyright {
+    font-size: 0.85rem !important;
+    color: rgba(255, 255, 255, 0.25) !important;
+}
+
+/* ═══════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════ */
+@media (max-width: 768px) {
+
+    .x-share,
+    .x-about {
+        padding: 3.5rem 0 3rem;
+    }
+
+    .x-container {
+        padding: 0 4vw;
+    }
+
+    .x-rotating-verse {
+        padding: 2rem 1.5rem;
+        min-height: 150px;
+    }
+
+    .x-rv-item {
+        padding: 2rem 1.5rem;
+    }
+
+    .x-skills-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.85rem;
+    }
+
+    /* Mobile: natural flow */
+    .x-btn-row {
+        gap: 0.5rem;
+    }
+
+    .x-btn-primary,
+    .x-btn-row {
+        max-width: 100%;
+    }
+
+    .x-social-btn {
+        width: 60px;
+        height: 60px;
+    }
+
+    .x-social-btn i {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .x-container {
+        padding: 0 3.5vw;
+    }
+
+    .x-rotating-verse {
+        padding: 1.5rem 1rem;
+        min-height: 130px;
+    }
+
+    .x-rv-item {
+        padding: 1.5rem 1rem;
+    }
+
+    .x-skill {
+        padding: 1.2rem 0.8rem;
+    }
+
+    .x-social {
+        gap: 1rem;
+    }
+
+    .x-social-btn {
+        width: 54px;
+        height: 54px;
+    }
+
+    .x-social-btn i {
+        font-size: 1.3rem;
+    }
+}
+
+/* ═══════════════════════════════════════
+   MAIN APP LAYOUT — Full-Width Overrides
+   Eliminate all empty black side space
+   ═══════════════════════════════════════ */
+
+/* Force app grid to fill entire viewport width */
+.app-grid {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 1.5rem 2vw !important;
+    gap: 1.5rem !important;
+    display: grid !important;
+    grid-template-columns: 55fr 45fr !important;
+    align-items: start !important;
+}
+
+/* Controls panel — stretch and enlarge */
+.app-grid .controls,
+.app-grid .panel {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 2rem 2.5rem !important;
+}
+
+/* Preview column — stretch to fill */
+.app-grid .preview-col {
+    max-width: 100% !important;
+    width: 100% !important;
+}
+
+/* Header — full width */
+.header {
+    max-width: 100% !important;
+    width: 100% !important;
+}
+
+.header-inner {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 0 2vw !important;
+}
+
+/* Bigger form elements */
+.field label {
+    font-size: 1.15rem !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.field select,
+.field input[type="number"] {
+    font-size: 1.1rem !important;
+    padding: 0.95rem 1.2rem !important;
+    border-radius: 12px !important;
+}
+
+.field input[type="range"] {
+    height: 8px !important;
+}
+
+/* Bigger buttons */
+.btn-gen {
+    font-size: 1.25rem !important;
+    padding: 1.2rem 2.5rem !important;
+    border-radius: 14px !important;
+}
+
+/* Panel titles bigger */
+.panel-head h2 {
+    font-size: 1.5rem !important;
+}
+
+/* Section labels */
+.field .range-val {
+    font-size: 1rem !important;
+}
+
+/* Preview title bigger */
+.preview-title {
+    font-size: 1.35rem !important;
+}
+
+/* iPhone frame — bigger on desktop */
+.iphone {
+    transform: scale(1.08);
+    transform-origin: top center;
+}
+
+/* Color dots bigger */
+.color-dot {
+    width: 32px !important;
+    height: 32px !important;
+}
+
+/* Chips & badges */
+.chip {
+    font-size: 0.95rem !important;
+    padding: 0.5rem 1rem !important;
+}
+
+/* Responsive — stack on mobile */
+@media (max-width: 900px) {
+    .app-grid {
+        grid-template-columns: 1fr !important;
+        padding: 1rem 3vw !important;
+    }
+
+    .iphone {
+        transform: scale(1);
+    }
+}
+
+@media (max-width: 600px) {
+    .app-grid {
+        padding: 0.75rem 2.5vw !important;
+    }
+
+    .app-grid .controls,
+    .app-grid .panel {
+        padding: 1.5rem 1.25rem !important;
+    }
+}

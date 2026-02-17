@@ -1,0 +1,8 @@
+# Firebase config (contains API keys)
+firebase-config.js
+
+# System
+.DS_Store
+Thumbs.db
+*.log
+node_modules/

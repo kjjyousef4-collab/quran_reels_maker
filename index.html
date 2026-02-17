@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="صانع ريلز القرآن الكريم - أنشئ مقاطع فيديو قرآنية بجودة 4K مع تلاوات لأشهر القراء">
+    <title>صانع ريلز القرآن | Quran Reels Maker</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Inter:wght@400;700&family=Amiri:wght@400;700&family=Amiri+Quran&family=Aref+Ruqaa:wght@400;700&family=Scheherazade+New:wght@400;700&family=Lateef:wght@400;700&family=Noto+Kufi+Arabic:wght@400;700&family=Reem+Kufi:wght@400;700&family=Tajawal:wght@400;700&family=Almarai:wght@400;700&family=El+Messiri:wght@400;700&family=Mada:wght@400;700&family=Changa:wght@400;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="design-system.css">
+    <link rel="stylesheet" href="modern-ui.css">
+    <link rel="stylesheet" href="share-developer.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Splash Screen -->
+    <div id="splashScreen" class="splash-screen">
+        <div class="splash-content">
+            <div class="basmala-text">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>
+        </div>
+    </div>
+
+    <!-- Background Effects -->
+    <canvas id="particleCanvas" class="particle-bg"></canvas>
+    <div class="aurora"></div>
+
+    <!-- Modern Navbar -->
+    <nav class="modern-navbar">
+        <div class="navbar-container">
+            <a href="#" class="navbar-logo">
+                <div class="navbar-icon">🕌</div>
+                <span data-i18n="appName">صانع ريلز القرآن</span>
+            </a>
+
+            <ul class="navbar-nav">
+                <li><a href="#" class="nav-link active" data-i18n="home">الرئيسية</a></li>
+                <li><a href="#create" class="nav-link" data-i18n="create">إنشاء</a></li>
+                <li><a href="#shareSection" class="nav-link" data-i18n="share">مشاركة</a></li>
+                <li><a href="#aboutSection" class="nav-link" data-i18n="about">حول</a></li>
+            </ul>
+
+            <div class="navbar-controls">
+                <!-- Visitor Counter -->
+                <div class="navbar-counter">
+                    <span class="navbar-counter-number" id="visits">...</span>
+                    <span class="navbar-counter-label">عدد الزوار حتى الآن كن سببًا في زيادته</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-container">
+
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <h1 class="hero-title" data-i18n="appName">صانع ريلز القرآن الكريم</h1>
+            <p class="hero-subtitle" data-i18n="heroSubtitle">أنشئ مقاطع قرآنية سينمائية مذهلة بجودة 4K</p>
+            <div class="hero-badges">
+                <span class="badge">🎬 جودة 4K Ultra HD فائقة الدقة</span>
+                <span class="badge">🎙️ أكثر من 50 قارئًا</span>
+                <span class="badge">📱 جاهز للنشر على جميع منصات التواصل الاجتماعي</span>
+                <span class="badge">▶️ مُهيأ بالكامل لاصحاب قنوات اليوتيوب بدون حقوق طبع ونشر</span>
+            </div>
+        </section>
+
+        <!-- Content Grid -->
+        <div class="content-grid" id="create">
+
+            <!-- Controls Panel -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">⚙️</div>
+                    <h2 class="card-title" data-i18n="settings">الإعدادات</h2>
+                </div>
+
+                <div class="card-body">
+                    <!-- Reciter -->
+                    <div class="form-group">
+                        <label class="form-label" for="reciterSelect" data-i18n="reciter">🎙️ القارئ</label>
+                        <select id="reciterSelect" class="select"></select>
+                    </div>
+
+                    <!-- Surah -->
+                    <div class="form-group">
+                        <label class="form-label" for="surahSelect" data-i18n="surah">📖 السورة</label>
+                        <select id="surahSelect" class="select"></select>
+                    </div>
+
+                    <!-- Verse Range -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4);">
+                        <div class="form-group">
+                            <label class="form-label" for="ayahStart" data-i18n="fromVerse">من آية</label>
+                            <input type="number" id="ayahStart" class="input" min="1" value="1">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="ayahEnd" data-i18n="toVerse">إلى آية</label>
+                            <input type="number" id="ayahEnd" class="input" min="1" value="3">
+                        </div>
+                    </div>
+
+                    <!-- Quality -->
+                    <div class="form-group">
+                        <label class="form-label" for="qualitySelect" data-i18n="quality">🎥 الجودة</label>
+                        <select id="qualitySelect" class="select">
+                            <option value="fast">360p — سريع ⚡ (هواتف قديمة جداً)</option>
+                            <option value="medium" selected>480p — متوسط 📱 (هواتف قديمة)</option>
+                            <option value="high">720p — عالي HD 📱 (هواتف حديثة)</option>
+                            <option value="fullhd">1080p — Full HD 💻 (هواتف حديثة + كمبيوتر)</option>
+                            <option value="uhd">4K — Ultra HD 🖥️ (كمبيوتر عالي الأداء فقط)</option>
+                        </select>
+                    </div>
+
+                    <!-- Background -->
+                    <div class="form-group">
+                        <label class="form-label" for="bgCategory" data-i18n="background">🖼️ الخلفية</label>
+                        <select id="bgCategory" class="select"></select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="bgSubItem" data-i18n="bgType">نوع الخلفية</label>
+                        <select id="bgSubItem" class="select"></select>
+                    </div>
+
+                    <!-- Typography -->
+                    <div class="form-group">
+                        <label class="form-label" for="fontType" data-i18n="fontType">🖋️ نوع الخط (الذي يظهر فوق
+                            الفيديو)</label>
+                        <select id="fontType" class="select">
+                            <optgroup label="── كلاسيكي ──">
+                                <option value="Amiri" selected>نسخ (Amiri)</option>
+                                <option value="Amiri Quran">عثماني مصحف</option>
+                                <option value="Aref Ruqaa">رقعة</option>
+                                <option value="Scheherazade New">شهرزاد</option>
+                                <option value="Lateef">لطيف</option>
+                            </optgroup>
+                            <optgroup label="── كوفي ──">
+                                <option value="Noto Kufi Arabic">كوفي نوتو</option>
+                                <option value="Reem Kufi">ريم كوفي</option>
+                            </optgroup>
+                            <optgroup label="── حديث ──">
+                                <option value="Tajawal">تجول</option>
+                                <option value="Cairo">القاهرة</option>
+                                <option value="Almarai">المراعي</option>
+                                <option value="El Messiri">المسيري</option>
+                                <option value="Mada">مدى</option>
+                                <option value="Changa">شانجا</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" data-i18n="fontColor">لون الخط (فوق الفيديو)</label>
+                        <div class="color-swatches">
+                            <button type="button" class="color-swatch" data-color="#f0d060" style="--c:#f0d060"
+                                title="ذهبي"></button>
+                            <button type="button" class="color-swatch active" data-color="#ffffff" style="--c:#fff"
+                                title="أبيض"></button>
+                            <button type="button" class="color-swatch" data-color="#f5e6c8" style="--c:#f5e6c8"
+                                title="بيج"></button>
+                            <button type="button" class="color-swatch" data-color="#e8c547" style="--c:#e8c547"
+                                title="ذهبي غامق"></button>
+                            <button type="button" class="color-swatch" data-color="#ffd700" style="--c:#ffd700"
+                                title="ذهبي لامع"></button>
+                            <button type="button" class="color-swatch" data-color="#a8e6cf" style="--c:#a8e6cf"
+                                title="زمردي"></button>
+                            <button type="button" class="color-swatch" data-color="#4dd0e1" style="--c:#4dd0e1"
+                                title="تركواز"></button>
+                            <button type="button" class="color-swatch" data-color="#87ceeb" style="--c:#87ceeb"
+                                title="سماوي"></button>
+                            <button type="button" class="color-swatch" data-color="#dda0dd" style="--c:#dda0dd"
+                                title="بنفسجي"></button>
+                            <button type="button" class="color-swatch" data-color="#ba68c8" style="--c:#ba68c8"
+                                title="بنفسجي داكن"></button>
+                            <button type="button" class="color-swatch" data-color="#ffa07a" style="--c:#ffa07a"
+                                title="مرجاني"></button>
+                            <button type="button" class="color-swatch" data-color="#ff6b6b" style="--c:#ff6b6b"
+                                title="أحمر فاتح"></button>
+                            <button type="button" class="color-swatch" data-color="#f0e68c" style="--c:#f0e68c"
+                                title="كاكي"></button>
+                            <button type="button" class="color-swatch" data-color="#98d8c8" style="--c:#98d8c8"
+                                title="نعناعي"></button>
+                            <button type="button" class="color-swatch" data-color="#c0c0c0" style="--c:#c0c0c0"
+                                title="فضي"></button>
+                            <button type="button" class="color-swatch" data-color="#ffd1dc" style="--c:#ffd1dc"
+                                title="وردي"></button>
+                            <button type="button" class="color-swatch" data-color="#ffb6c1" style="--c:#ffb6c1"
+                                title="وردي فاتح"></button>
+                            <button type="button" class="color-swatch" data-color="#ffe4b5" style="--c:#ffe4b5"
+                                title="عسلي"></button>
+                            <button type="button" class="color-swatch" data-color="#aed581" style="--c:#aed581"
+                                title="أخضر فاتح"></button>
+                            <button type="button" class="color-swatch" data-color="#ffcc80" style="--c:#ffcc80"
+                                title="برتقالي فاتح"></button>
+                        </div>
+                        <input type="color" id="fontColor" value="#ffffff" class="input">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" data-i18n="fontSize">حجم الخط (فوق الفيديو) <span
+                                id="fontSizeVal">28</span></label>
+                        <input type="range" id="fontSize" min="16" max="56" value="28" class="input">
+                    </div>
+
+                    <!-- Warning -->
+                    <div id="ayahWarning" class="alert alert-warning" style="display:none">
+                        <span>⚠️</span>
+                        <span id="ayahWarningText"></span>
+                    </div>
+
+                    <!-- Generate Button -->
+                    <button id="generateBtn" class="btn btn-primary btn-large"
+                        style="width: 100%; margin-top: var(--space-4);">
+                        <span data-i18n="generate">إنشاء الريل</span>
+                    </button>
+
+                    <!-- Progress -->
+                    <div id="progressSection" class="progress-container" style="display:none">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: var(--space-2);">
+                            <span id="progressStatus">جاري التحميل...</span>
+                            <span id="progressPercent">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div id="progressBar" class="progress-fill" style="width: 0%"></div>
+                        </div>
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-top: var(--space-2);">
+                            <span id="progressETA"
+                                style="font-size: var(--font-size-sm); color: var(--color-text-secondary);"></span>
+                            <button id="cancelBtn" class="btn btn-secondary" data-i18n="cancel">إلغاء</button>
+                        </div>
+                    </div>
+
+                    <!-- Error / Success -->
+                    <div id="errorBox" class="alert alert-error" style="display:none">
+                        <span>❌</span>
+                        <span id="errorText"></span>
+                    </div>
+                    <div id="successBox" class="alert alert-success" style="display:none">
+                        <span>✅ تم إنشاء الريل بنجاح!</span>
+                        <a id="downloadLink" class="btn btn-primary" download="quran-reel.mp4">📥 تحميل MP4</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preview Panel -->
+            <div class="preview-card">
+                <div class="preview-glow"></div>
+                <h3 class="card-title" style="text-align: center; margin-bottom: var(--space-6);" data-i18n="preview">📱
+                    معاينة مباشرة</h3>
+
+                <div class="phone-mockup">
+                    <div class="phone-notch"></div>
+                    <div class="phone-screen">
+                        <canvas id="previewCanvas"></canvas>
+                        <div id="previewPlaceholder" class="preview-placeholder">
+                            <div class="placeholder-icon">📱</div>
+                            <p>اضغط <strong>إنشاء الريل</strong><br>لمشاهدة المعاينة هنا</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Share Section -->
+        <section class="x-share" id="shareSection">
+            <div class="x-ambient"></div>
+            <div class="x-container">
+                <div class="x-share-hero">
+                    <h2 class="x-hero-title" data-i18n="shareTitle">شارك الموقع واكسب الأجر</h2>
+                    <div class="x-hero-line"></div>
+                </div>
+
+                <div class="x-rotating-verse" id="rotatingVerseBox">
+                    <div class="x-rv-item x-rv-active">
+                        <p class="x-verse-arabic">﴿ وَمَنْ أَحْسَنُ قَوْلًا مِّمَّن دَعَا إِلَى اللَّهِ وَعَمِلَ
+                            صَالِحًا ﴾</p>
+                        <span class="x-verse-ref" data-i18n="verseRef1">سورة فصلت - الآية 33</span>
+                    </div>
+
+                    <div class="x-rv-item">
+                        <p class="x-verse-arabic">﴿ ادْعُ إِلَىٰ سَبِيلِ رَبِّكَ بِالْحِكْمَةِ وَالْمَوْعِظَةِ
+                            الْحَسَنَةِ ﴾</p>
+                        <span class="x-verse-ref" data-i18n="verseRef2">سورة النحل - الآية 125</span>
+                    </div>
+
+                    <div class="x-rv-item">
+                        <p class="x-verse-arabic">﴿ لَوْ أَنزَلْنَا هَٰذَا الْقُرْآنَ عَلَىٰ جَبَلٍ لَّرَأَيْتَهُ
+                            خَاشِعًا مُّتَصَدِّعًا مِّنْ خَشْيَةِ اللَّهِ ﴾</p>
+                        <span class="x-verse-ref" data-i18n="verseRef3">سورة الحشر - الآية 21</span>
+                    </div>
+
+                    <div class="x-rv-item">
+                        <p class="x-verse-arabic">« الدَّالُّ عَلَى الْخَيْرِ كَفَاعِلِهِ »</p>
+                        <span class="x-verse-ref" data-i18n="hadithRef">رواه الترمذي</span>
+                    </div>
+
+                    <div class="x-rv-item">
+                        <p class="x-verse-arabic">﴿ وَلَقَدْ يَسَّرْنَا الْقُرْآنَ لِلذِّكْرِ فَهَلْ مِن مُّدَّكِرٍ ﴾
+                        </p>
+                        <span class="x-verse-ref">سورة القمر - الآية 17</span>
+                    </div>
+
+                    <div class="x-rv-item">
+                        <p class="x-verse-arabic">« خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ »</p>
+                        <span class="x-verse-ref">رواه البخاري</span>
+                    </div>
+
+                    <div class="x-rv-item">
+                        <p class="x-verse-arabic">﴿ إِنَّ هَٰذَا الْقُرْآنَ يَهْدِي لِلَّتِي هِيَ أَقْوَمُ ﴾</p>
+                        <span class="x-verse-ref">سورة الإسراء - الآية 9</span>
+                    </div>
+
+                    <div class="x-rv-item">
+                        <p class="x-verse-arabic">« بَلِّغُوا عَنِّي وَلَوْ آيَةً »</p>
+                        <span class="x-verse-ref">رواه البخاري</span>
+                    </div>
+
+                    <div class="x-rv-item">
+                        <p class="x-verse-arabic">﴿ أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ ﴾</p>
+                        <span class="x-verse-ref">سورة الرعد - الآية 28</span>
+                    </div>
+
+                    <div class="x-rv-item">
+                        <p class="x-verse-arabic">﴿ وَرَتِّلِ الْقُرْآنَ تَرْتِيلًا ﴾</p>
+                        <span class="x-verse-ref">سورة المزمل - الآية 4</span>
+                    </div>
+
+                    <div class="x-rv-item">
+                        <p class="x-verse-arabic">« اقْرَؤُوا القُرْآنَ فإنَّه يَأْتي يَومَ القِيامَةِ شَفِيعًا
+                            لأَصْحابِهِ »</p>
+                        <span class="x-verse-ref">رواه مسلم</span>
+                    </div>
+
+                    <div class="x-rv-item">
+                        <p class="x-verse-arabic">﴿ كِتَابٌ أَنزَلْنَاهُ إِلَيْكَ مُبَارَكٌ لِّيَدَّبَّرُوا آيَاتِهِ ﴾
+                        </p>
+                        <span class="x-verse-ref">سورة ص - الآية 29</span>
+                    </div>
+
+                    <div class="x-rv-item">
+                        <p class="x-verse-arabic">﴿ وَإِذَا قُرِئَ الْقُرْآنُ فَاسْتَمِعُوا لَهُ وَأَنصِتُوا لَعَلَّكُمْ
+                            تُرْحَمُونَ ﴾</p>
+                        <span class="x-verse-ref">سورة الأعراف - الآية 204</span>
+                    </div>
+
+                    <div class="x-rv-item">
+                        <p class="x-verse-arabic">« مَنْ دَلَّ عَلَى خَيْرٍ فَلَهُ مِثْلُ أَجْرِ فَاعِلِهِ »</p>
+                        <span class="x-verse-ref">رواه مسلم</span>
+                    </div>
+
+                    <div class="x-rv-item">
+                        <p class="x-verse-arabic">﴿ مَا أَنزَلْنَا عَلَيْكَ الْقُرْآنَ لِتَشْقَىٰ ﴾</p>
+                        <span class="x-verse-ref">سورة طه - الآية 2</span>
+                    </div>
+
+                    <div class="x-rv-item">
+                        <p class="x-verse-arabic">﴿ بَلْ هُوَ آيَاتٌ بَيِّنَاتٌ فِي صُدُورِ الَّذِينَ أُوتُوا الْعِلْمَ
+                            ﴾</p>
+                        <span class="x-verse-ref">سورة العنكبوت - الآية 49</span>
+                    </div>
+
+                    <div class="x-rv-item">
+                        <p class="x-verse-arabic">« يُقَالُ لِصَاحِبِ الْقُرْآنِ: اقْرَأْ وَارْتَقِ وَرَتِّلْ »</p>
+                        <span class="x-verse-ref">رواه الترمذي</span>
+                    </div>
+
+                    <div class="x-rv-item">
+                        <p class="x-verse-arabic">﴿ نَحْنُ نَقُصُّ عَلَيْكَ أَحْسَنَ الْقَصَصِ بِمَا أَوْحَيْنَا
+                            إِلَيْكَ هَٰذَا الْقُرْآنَ ﴾</p>
+                        <span class="x-verse-ref">سورة يوسف - الآية 3</span>
+                    </div>
+
+                    <div class="x-rv-item">
+                        <p class="x-verse-arabic">﴿ وَذَكِّرْ فَإِنَّ الذِّكْرَىٰ تَنفَعُ الْمُؤْمِنِينَ ﴾</p>
+                        <span class="x-verse-ref">سورة الذاريات - الآية 55</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="x-motivation">
+                <p data-i18n="motivation1">كل مشاركة قد تكون صدقة جارية لك ولوالديك</p>
+                <p data-i18n="motivation2">ساهم في نشر كلام الله للعالمين</p>
+                <p data-i18n="motivation3">اضغط على اي أيقونة مشاركة بالأسفل وساهم في نشر الخير</p>
+            </div>
+
+            <div class="x-cta-group">
+                <!-- Standalone WhatsApp removed, moved into ticker below -->
+
+                <div class="x-share-ticker">
+                    <div class="x-ticker-track">
+                        <!-- Group 1 (Main with IDs) -->
+                        <div class="x-ticker-group">
+                            <a id="shareWhatsApp" class="x-btn x-btn-secondary x-wa" target="_blank" rel="noopener">
+                                <i class="fab fa-whatsapp"></i>
+                                <span>واتساب</span>
+                            </a>
+                            <a id="shareFacebook" class="x-btn x-btn-secondary x-fb" target="_blank" rel="noopener">
+                                <i class="fab fa-facebook-f"></i>
+                                <span>فيسبوك</span>
+                            </a>
+                            <a id="shareTwitter" class="x-btn x-btn-secondary x-tw" target="_blank" rel="noopener">
+                                <i class="fab fa-twitter"></i>
+                                <span>تويتر</span>
+                            </a>
+                            <a id="shareTelegram" class="x-btn x-btn-secondary x-tg" target="_blank" rel="noopener">
+                                <i class="fab fa-telegram"></i>
+                                <span>تيليجرام</span>
+                            </a>
+                            <a id="shareLinkedIn" class="x-btn x-btn-secondary x-li" target="_blank" rel="noopener">
+                                <i class="fab fa-linkedin-in"></i>
+                                <span>لينكد إن</span>
+                            </a>
+                            <a id="shareGmail" class="x-btn x-btn-secondary x-gm" target="_blank" rel="noopener">
+                                <i class="fas fa-envelope"></i>
+                                <span>جيميل</span>
+                            </a>
+                        </div>
+                        <!-- Group 2 (Clone for seamless loop) -->
+                        <div class="x-ticker-group">
+                            <a class="x-btn x-btn-secondary x-wa" target="_blank" rel="noopener">
+                                <i class="fab fa-whatsapp"></i>
+                                <span>واتساب</span>
+                            </a>
+                            <a class="x-btn x-btn-secondary x-fb" target="_blank" rel="noopener">
+                                <i class="fab fa-facebook-f"></i>
+                                <span>فيسبوك</span>
+                            </a>
+                            <a class="x-btn x-btn-secondary x-tw" target="_blank" rel="noopener">
+                                <i class="fab fa-twitter"></i>
+                                <span>تويتر</span>
+                            </a>
+                            <a class="x-btn x-btn-secondary x-tg" target="_blank" rel="noopener">
+                                <i class="fab fa-telegram"></i>
+                                <span>تيليجرام</span>
+                            </a>
+                            <a class="x-btn x-btn-secondary x-li" target="_blank" rel="noopener">
+                                <i class="fab fa-linkedin-in"></i>
+                                <span>لينكد إن</span>
+                            </a>
+                            <a class="x-btn x-btn-secondary x-gm" target="_blank" rel="noopener">
+                                <i class="fas fa-envelope"></i>
+                                <span>جيميل</span>
+                            </a>
+                        </div>
+                        <!-- Groups 3-10 for seamless loop -->
+                        <div class="x-ticker-group">
+                            <a class="x-btn x-btn-secondary x-wa" target="_blank" rel="noopener"><i
+                                    class="fab fa-whatsapp"></i><span>واتساب</span></a>
+                            <a class="x-btn x-btn-secondary x-fb" target="_blank" rel="noopener"><i
+                                    class="fab fa-facebook-f"></i><span>فيسبوك</span></a>
+                            <a class="x-btn x-btn-secondary x-tw" target="_blank" rel="noopener"><i
+                                    class="fab fa-twitter"></i><span>تويتر</span></a>
+                            <a class="x-btn x-btn-secondary x-tg" target="_blank" rel="noopener"><i
+                                    class="fab fa-telegram"></i><span>تيليجرام</span></a>
+                            <a class="x-btn x-btn-secondary x-li" target="_blank" rel="noopener"><i
+                                    class="fab fa-linkedin-in"></i><span>لينكد إن</span></a>
+                            <a class="x-btn x-btn-secondary x-gm" target="_blank" rel="noopener"><i
+                                    class="fas fa-envelope"></i><span>جيميل</span></a>
+                        </div>
+                        <div class="x-ticker-group">
+                            <a class="x-btn x-btn-secondary x-wa" target="_blank" rel="noopener"><i
+                                    class="fab fa-whatsapp"></i><span>واتساب</span></a>
+                            <a class="x-btn x-btn-secondary x-fb" target="_blank" rel="noopener"><i
+                                    class="fab fa-facebook-f"></i><span>فيسبوك</span></a>
+                            <a class="x-btn x-btn-secondary x-tw" target="_blank" rel="noopener"><i
+                                    class="fab fa-twitter"></i><span>تويتر</span></a>
+                            <a class="x-btn x-btn-secondary x-tg" target="_blank" rel="noopener"><i
+                                    class="fab fa-telegram"></i><span>تيليجرام</span></a>
+                            <a class="x-btn x-btn-secondary x-li" target="_blank" rel="noopener"><i
+                                    class="fab fa-linkedin-in"></i><span>لينكد إن</span></a>
+                            <a class="x-btn x-btn-secondary x-gm" target="_blank" rel="noopener"><i
+                                    class="fas fa-envelope"></i><span>جيميل</span></a>
+                        </div>
+                        <div class="x-ticker-group">
+                            <a class="x-btn x-btn-secondary x-wa" target="_blank" rel="noopener"><i
+                                    class="fab fa-whatsapp"></i><span>واتساب</span></a>
+                            <a class="x-btn x-btn-secondary x-fb" target="_blank" rel="noopener"><i
+                                    class="fab fa-facebook-f"></i><span>فيسبوك</span></a>
+                            <a class="x-btn x-btn-secondary x-tw" target="_blank" rel="noopener"><i
+                                    class="fab fa-twitter"></i><span>تويتر</span></a>
+                            <a class="x-btn x-btn-secondary x-tg" target="_blank" rel="noopener"><i
+                                    class="fab fa-telegram"></i><span>تيليجرام</span></a>
+                            <a class="x-btn x-btn-secondary x-li" target="_blank" rel="noopener"><i
+                                    class="fab fa-linkedin-in"></i><span>لينكد إن</span></a>
+                            <a class="x-btn x-btn-secondary x-gm" target="_blank" rel="noopener"><i
+                                    class="fas fa-envelope"></i><span>جيميل</span></a>
+                        </div>
+                        <div class="x-ticker-group">
+                            <a class="x-btn x-btn-secondary x-wa" target="_blank" rel="noopener"><i
+                                    class="fab fa-whatsapp"></i><span>واتساب</span></a>
+                            <a class="x-btn x-btn-secondary x-fb" target="_blank" rel="noopener"><i
+                                    class="fab fa-facebook-f"></i><span>فيسبوك</span></a>
+                            <a class="x-btn x-btn-secondary x-tw" target="_blank" rel="noopener"><i
+                                    class="fab fa-twitter"></i><span>تويتر</span></a>
+                            <a class="x-btn x-btn-secondary x-tg" target="_blank" rel="noopener"><i
+                                    class="fab fa-telegram"></i><span>تيليجرام</span></a>
+                            <a class="x-btn x-btn-secondary x-li" target="_blank" rel="noopener"><i
+                                    class="fab fa-linkedin-in"></i><span>لينكد إن</span></a>
+                            <a class="x-btn x-btn-secondary x-gm" target="_blank" rel="noopener"><i
+                                    class="fas fa-envelope"></i><span>جيميل</span></a>
+                        </div>
+                        <div class="x-ticker-group">
+                            <a class="x-btn x-btn-secondary x-wa" target="_blank" rel="noopener"><i
+                                    class="fab fa-whatsapp"></i><span>واتساب</span></a>
+                            <a class="x-btn x-btn-secondary x-fb" target="_blank" rel="noopener"><i
+                                    class="fab fa-facebook-f"></i><span>فيسبوك</span></a>
+                            <a class="x-btn x-btn-secondary x-tw" target="_blank" rel="noopener"><i
+                                    class="fab fa-twitter"></i><span>تويتر</span></a>
+                            <a class="x-btn x-btn-secondary x-tg" target="_blank" rel="noopener"><i
+                                    class="fab fa-telegram"></i><span>تيليجرام</span></a>
+                            <a class="x-btn x-btn-secondary x-li" target="_blank" rel="noopener"><i
+                                    class="fab fa-linkedin-in"></i><span>لينكد إن</span></a>
+                            <a class="x-btn x-btn-secondary x-gm" target="_blank" rel="noopener"><i
+                                    class="fas fa-envelope"></i><span>جيميل</span></a>
+                        </div>
+                        <div class="x-ticker-group">
+                            <a class="x-btn x-btn-secondary x-wa" target="_blank" rel="noopener"><i
+                                    class="fab fa-whatsapp"></i><span>واتساب</span></a>
+                            <a class="x-btn x-btn-secondary x-fb" target="_blank" rel="noopener"><i
+                                    class="fab fa-facebook-f"></i><span>فيسبوك</span></a>
+                            <a class="x-btn x-btn-secondary x-tw" target="_blank" rel="noopener"><i
+                                    class="fab fa-twitter"></i><span>تويتر</span></a>
+                            <a class="x-btn x-btn-secondary x-tg" target="_blank" rel="noopener"><i
+                                    class="fab fa-telegram"></i><span>تيليجرام</span></a>
+                            <a class="x-btn x-btn-secondary x-li" target="_blank" rel="noopener"><i
+                                    class="fab fa-linkedin-in"></i><span>لينكد إن</span></a>
+                            <a class="x-btn x-btn-secondary x-gm" target="_blank" rel="noopener"><i
+                                    class="fas fa-envelope"></i><span>جيميل</span></a>
+                        </div>
+                        <div class="x-ticker-group">
+                            <a class="x-btn x-btn-secondary x-wa" target="_blank" rel="noopener"><i
+                                    class="fab fa-whatsapp"></i><span>واتساب</span></a>
+                            <a class="x-btn x-btn-secondary x-fb" target="_blank" rel="noopener"><i
+                                    class="fab fa-facebook-f"></i><span>فيسبوك</span></a>
+                            <a class="x-btn x-btn-secondary x-tw" target="_blank" rel="noopener"><i
+                                    class="fab fa-twitter"></i><span>تويتر</span></a>
+                            <a class="x-btn x-btn-secondary x-tg" target="_blank" rel="noopener"><i
+                                    class="fab fa-telegram"></i><span>تيليجرام</span></a>
+                            <a class="x-btn x-btn-secondary x-li" target="_blank" rel="noopener"><i
+                                    class="fab fa-linkedin-in"></i><span>لينكد إن</span></a>
+                            <a class="x-btn x-btn-secondary x-gm" target="_blank" rel="noopener"><i
+                                    class="fas fa-envelope"></i><span>جيميل</span></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+            </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section class="x-about" id="aboutSection">
+            <div class="x-container">
+                <div class="x-about-header">
+                    <div class="x-about-icon fade-up">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h2 class="x-about-title fade-up" data-i18n="aboutDev">عن المطور</h2>
+                </div>
+
+                <div class="x-about-bio fade-up">
+                    <h3 class="x-about-name">المهندس/ يوسف خالد</h3>
+                    <p class="x-about-role">مهندس كمبيوتر ونظم تحكم<br>متخصص في الذكاء الاصطناعي وتطوير
+                        البرمجيات</p>
+                    <p class="x-about-role">اساعدك على تحويل فكرتك إلى مشروع متكامل في اي من الخدمات التالية:</p>
+                </div>
+
+                <div class="x-skills-ticker fade-up">
+                    <div class="x-skills-track">
+                        <!-- Group 1 -->
+                        <div class="x-skills-group">
+                            <div class="x-skill">
+                                <i class="fas fa-brain"></i>
+                                <span data-i18n="skillAI">الذكاء الاصطناعي</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-globe"></i>
+                                <span data-i18n="skillWeb">تطوير المواقع</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-robot"></i>
+                                <span data-i18n="skillAuto">أتمتة المهام</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-palette"></i>
+                                <span data-i18n="skillGraphic">تصاميم جرافيك</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-video"></i>
+                                <span data-i18n="skillVideo">تصاميم فيديوهات</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-mobile-alt"></i>
+                                <span data-i18n="skillMobile">تطبيقات الجوال</span>
+                            </div>
+                        </div>
+                        <!-- Group 2 -->
+                        <div class="x-skills-group">
+                            <div class="x-skill">
+                                <i class="fas fa-brain"></i>
+                                <span data-i18n="skillAI">الذكاء الاصطناعي</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-globe"></i>
+                                <span data-i18n="skillWeb">تطوير المواقع</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-robot"></i>
+                                <span data-i18n="skillAuto">أتمتة المهام</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-palette"></i>
+                                <span data-i18n="skillGraphic">تصاميم جرافيك</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-video"></i>
+                                <span data-i18n="skillVideo">تصاميم فيديوهات</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-mobile-alt"></i>
+                                <span data-i18n="skillMobile">تطبيقات الجوال</span>
+                            </div>
+                        </div>
+                        <!-- Group 3 -->
+                        <div class="x-skills-group">
+                            <div class="x-skill">
+                                <i class="fas fa-brain"></i>
+                                <span data-i18n="skillAI">الذكاء الاصطناعي</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-globe"></i>
+                                <span data-i18n="skillWeb">تطوير المواقع</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-robot"></i>
+                                <span data-i18n="skillAuto">أتمتة المهام</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-palette"></i>
+                                <span data-i18n="skillGraphic">تصاميم جرافيك</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-video"></i>
+                                <span data-i18n="skillVideo">تصاميم فيديوهات</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-mobile-alt"></i>
+                                <span data-i18n="skillMobile">تطبيقات الجوال</span>
+                            </div>
+                        </div>
+                        <!-- Group 4 -->
+                        <div class="x-skills-group">
+                            <div class="x-skill">
+                                <i class="fas fa-brain"></i>
+                                <span data-i18n="skillAI">الذكاء الاصطناعي</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-globe"></i>
+                                <span data-i18n="skillWeb">تطوير المواقع</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-robot"></i>
+                                <span data-i18n="skillAuto">أتمتة المهام</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-palette"></i>
+                                <span data-i18n="skillGraphic">تصاميم جرافيك</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-video"></i>
+                                <span data-i18n="skillVideo">تصاميم فيديوهات</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-mobile-alt"></i>
+                                <span data-i18n="skillMobile">تطبيقات الجوال</span>
+                            </div>
+                        </div>
+                        <!-- Group 5 -->
+                        <div class="x-skills-group">
+                            <div class="x-skill">
+                                <i class="fas fa-brain"></i>
+                                <span data-i18n="skillAI">الذكاء الاصطناعي</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-globe"></i>
+                                <span data-i18n="skillWeb">تطوير المواقع</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-robot"></i>
+                                <span data-i18n="skillAuto">أتمتة المهام</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-palette"></i>
+                                <span data-i18n="skillGraphic">تصاميم جرافيك</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-video"></i>
+                                <span data-i18n="skillVideo">تصاميم فيديوهات</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-mobile-alt"></i>
+                                <span data-i18n="skillMobile">تطبيقات الجوال</span>
+                            </div>
+                        </div>
+                        <!-- Group 6 -->
+                        <div class="x-skills-group">
+                            <div class="x-skill">
+                                <i class="fas fa-brain"></i>
+                                <span data-i18n="skillAI">الذكاء الاصطناعي</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-globe"></i>
+                                <span data-i18n="skillWeb">تطوير المواقع</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-robot"></i>
+                                <span data-i18n="skillAuto">أتمتة المهام</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-palette"></i>
+                                <span data-i18n="skillGraphic">تصاميم جرافيك</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-video"></i>
+                                <span data-i18n="skillVideo">تصاميم فيديوهات</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-mobile-alt"></i>
+                                <span data-i18n="skillMobile">تطبيقات الجوال</span>
+                            </div>
+                        </div>
+                        <!-- Group 7 -->
+                        <div class="x-skills-group">
+                            <div class="x-skill">
+                                <i class="fas fa-brain"></i>
+                                <span data-i18n="skillAI">الذكاء الاصطناعي</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-globe"></i>
+                                <span data-i18n="skillWeb">تطوير المواقع</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-robot"></i>
+                                <span data-i18n="skillAuto">أتمتة المهام</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-palette"></i>
+                                <span data-i18n="skillGraphic">تصاميم جرافيك</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-video"></i>
+                                <span data-i18n="skillVideo">تصاميم فيديوهات</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-mobile-alt"></i>
+                                <span data-i18n="skillMobile">تطبيقات الجوال</span>
+                            </div>
+                        </div>
+                        <!-- Group 8 -->
+                        <div class="x-skills-group">
+                            <div class="x-skill">
+                                <i class="fas fa-brain"></i>
+                                <span data-i18n="skillAI">الذكاء الاصطناعي</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-globe"></i>
+                                <span data-i18n="skillWeb">تطوير المواقع</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-robot"></i>
+                                <span data-i18n="skillAuto">أتمتة المهام</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-palette"></i>
+                                <span data-i18n="skillGraphic">تصاميم جرافيك</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-video"></i>
+                                <span data-i18n="skillVideo">تصاميم فيديوهات</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-mobile-alt"></i>
+                                <span data-i18n="skillMobile">تطبيقات الجوال</span>
+                            </div>
+                        </div>
+                        <!-- Group 9 -->
+                        <div class="x-skills-group">
+                            <div class="x-skill">
+                                <i class="fas fa-brain"></i>
+                                <span data-i18n="skillAI">الذكاء الاصطناعي</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-globe"></i>
+                                <span data-i18n="skillWeb">تطوير المواقع</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-robot"></i>
+                                <span data-i18n="skillAuto">أتمتة المهام</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-palette"></i>
+                                <span data-i18n="skillGraphic">تصاميم جرافيك</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-video"></i>
+                                <span data-i18n="skillVideo">تصاميم فيديوهات</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-mobile-alt"></i>
+                                <span data-i18n="skillMobile">تطبيقات الجوال</span>
+                            </div>
+                        </div>
+                        <!-- Group 10 -->
+                        <div class="x-skills-group">
+                            <div class="x-skill">
+                                <i class="fas fa-brain"></i>
+                                <span data-i18n="skillAI">الذكاء الاصطناعي</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-globe"></i>
+                                <span data-i18n="skillWeb">تطوير المواقع</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-robot"></i>
+                                <span data-i18n="skillAuto">أتمتة المهام</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-palette"></i>
+                                <span data-i18n="skillGraphic">تصاميم جرافيك</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-video"></i>
+                                <span data-i18n="skillVideo">تصاميم فيديوهات</span>
+                            </div>
+                            <div class="x-skill">
+                                <i class="fas fa-mobile-alt"></i>
+                                <span data-i18n="skillMobile">تطبيقات الجوال</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="x-contact-cta fade-up">
+                    <p data-i18n="contactPrompt">للتعديلات أو الإضافات أو الاقتراحات او للحصول علي السورس كوود تواصل مع
+                        المطور عبر وسائل التواصل التالية:</p>
+                </div>
+
+                <div class="x-social fade-up">
+                    <a href="https://wa.me/201007097545?text=مرحبًا%20يا%20هندسة" class="x-social-btn x-wa"
+                        target="_blank" rel="noopener">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                    <a href="https://www.linkedin.com/in/yousefkhaleda" class="x-social-btn x-li" target="_blank"
+                        rel="noopener">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a href="https://www.instagram.com/y0usefkhaledofficial" class="x-social-btn x-ig" target="_blank"
+                        rel="noopener">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="https://www.facebook.com/yousefkhaleda" class="x-social-btn x-fb" target="_blank"
+                        rel="noopener">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                </div>
+
+                <div class="x-about-footer fade-up">
+                    <p class="x-footer-msg" data-i18n="footerMsg">✨ أسعد بتلقي آرائكم... معاً لنشر الخير ✨</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="modern-footer">
+        <div class="footer-content">
+            <p data-i18n="madeWithLove">صُنع بـ <i class="fas fa-heart" style="color:#e74c3c"></i> لنشر كلام الله</p>
+            <p style="margin-top: var(--space-2); opacity: 0.7;" data-i18n="rights">جميع الحقوق محفوظة © 2026</p>
+        </div>
+    </footer>
+
+    <!-- Hidden Canvases -->
+    <canvas id="recordCanvas" style="display:none;"></canvas>
+
+    <!-- Scripts -->
+    <script type="module" src="app.js"></script>
+    <script src="share-buttons.js"></script>
+
+    <!-- Firebase Visitor Counter -->
+    <script src="firebase-config.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, updateDoc, increment, getDoc }
+            from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const app = initializeApp(FIREBASE_CONFIG);
+        const db = getFirestore(app);
+        const counterRef = doc(db, "counter", "visits");
+
+        function animateCount(el, target) {
+            const duration = 1500;
+            const start = Math.max(0, target - 30);
+            const range = target - start;
+            const t0 = performance.now();
+
+            function step(now) {
+                const elapsed = now - t0;
+                const progress = Math.min(elapsed / duration, 1);
+                const ease = 1 - Math.pow(1 - progress, 3);
+                const current = Math.round(start + range * ease);
+                el.innerText = current.toLocaleString("ar-EG");
+
+                if (progress < 1) {
+                    requestAnimationFrame(step);
+                } else {
+                    el.innerText = target.toLocaleString("ar-EG");
+                    el.classList.add('counting');
+                    setTimeout(() => el.classList.remove('counting'), 350);
+                }
+            }
+
+            requestAnimationFrame(step);
+        }
+
+        async function updateCounter() {
+            try {
+                await updateDoc(counterRef, { value: increment(1) });
+                const snap = await getDoc(counterRef);
+                const el = document.getElementById("visits");
+                animateCount(el, snap.data().value);
+            } catch (e) {
+                const el = document.getElementById("visits");
+                if (el) el.innerText = "✦";
+            }
+        }
+
+        updateCounter();
+    </script>
+</body>
+
+</html>
