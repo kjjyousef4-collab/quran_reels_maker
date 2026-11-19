@@ -897,8 +897,8 @@
         </div>
     </footer>
 
-    <!-- Hidden Canvases -->
-    <canvas id="recordCanvas" style="display:none;"></canvas>
+    <!-- Hidden Canvases (Off-screen instead of display:none to prevent captureStream black video bug) -->
+    <canvas id="recordCanvas" style="position: fixed; left: -9999px; top: -9999px; opacity: 0; pointer-events: none;"></canvas>
 
     <!-- Scripts -->
     <script type="module" src="app.js"></script>

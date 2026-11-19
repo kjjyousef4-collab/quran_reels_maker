@@ -3,9 +3,9 @@
    ============================================ */
 'use strict';
 
-// ── API Keys ──
-const PIXABAY_KEY = '34128042-b8f7a9ec238f6a9e676371552';
-const PEXELS_KEY = 'ml2IGQQY9oL1xEcMvg2OKeiBOnRMyWXXHOkRLByTukIuVL9dev3FGbad';
+// ── API Keys (Allow custom keys via localStorage or settings) ──
+let PIXABAY_KEY = localStorage.getItem('custom_pixabay_key') || '34128042-b8f7a9ec238f6a9e676371552';
+let PEXELS_KEY = localStorage.getItem('custom_pexels_key') || 'ml2IGQQY9oL1xEcMvg2OKeiBOnRMyWXXHOkRLByTukIuVL9dev3FGbad';
 
 // ── mp4-muxer (loaded dynamically) ──
 let Mp4Muxer = null;
@@ -614,15 +614,20 @@ function loadImg(url) {
     });
 }
 
-// Pre-approved Safe Nature/Islamic Images (Fallback)
+// Pre-approved Safe Nature/Islamic Images (Curated high-res with guaranteed CORS)
 const SAFE_FALLBACK_IMAGES = [
+    'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1280&q=80',
+    'https://images.unsplash.com/photo-1519817650390-64a93db51149?auto=format&fit=crop&w=1280&q=80',
+    'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1280&q=80',
+    'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1280&q=80',
+    'https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=1280&q=80',
+    'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1280&q=80',
+    'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1280&q=80',
+    'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=1280&q=80',
     'https://images.pexels.com/photos/1252869/pexels-photo-1252869.jpeg?auto=compress&cs=tinysrgb&h=1280',
     'https://images.pexels.com/photos/2387873/pexels-photo-2387873.jpeg?auto=compress&cs=tinysrgb&h=1280',
     'https://images.pexels.com/photos/2086622/pexels-photo-2086622.jpeg?auto=compress&cs=tinysrgb&h=1280',
-    'https://images.pexels.com/photos/3225517/pexels-photo-3225517.jpeg?auto=compress&cs=tinysrgb&h=1280',
-    'https://images.pexels.com/photos/2236674/pexels-photo-2236674.jpeg?auto=compress&cs=tinysrgb&h=1280',
-    'https://images.pexels.com/photos/459225/pexels-photo-459225.jpeg?auto=compress&cs=tinysrgb&h=1280',
-    'https://images.pexels.com/photos/1761279/pexels-photo-1761279.jpeg?auto=compress&cs=tinysrgb&h=1280'
+    'https://images.pexels.com/photos/3225517/pexels-photo-3225517.jpeg?auto=compress&cs=tinysrgb&h=1280'
 ];
 
 // Global image dedup set — reset per generation
@@ -752,13 +757,32 @@ async function fetchImage(forcedQuery) {
 function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 
 function drawProcBg(ctx, w, h, progress, seed) {
-    const h1 = (seed * 60 + progress * 30) % 360, h2 = (h1 + 120) % 360;
-    const g = ctx.createLinearGradient(0, 0, w * 0.5, h);
-    g.addColorStop(0, 'hsl(' + h1 + ',40%,15%)'); g.addColorStop(0.5, 'hsl(' + ((h1 + h2) / 2) + ',30%,10%)'); g.addColorStop(1, 'hsl(' + h2 + ',40%,12%)');
-    ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
-    const rng = mulberry32(seed); ctx.fillStyle = 'rgba(255,255,255,0.5)';
-    for (let i = 0; i < 60; i++) { const x = rng() * w, y = rng() * h, r = rng() * 2 + 0.5; ctx.globalAlpha = Math.max(0, Math.min(1, 0.3 + Math.sin(progress * Math.PI * 2 + i) * 0.3)); ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); }
-    ctx.globalAlpha = 1;
+    // Rich Islamic aesthetic procedural background (Emerald & Royal Indigo with Gold dust)
+    const baseHue = (seed * 45 + 160) % 360; // Emerald (160) to Deep Indigo (220)
+    const g = ctx.createRadialGradient(w / 2, h * 0.45, w * 0.1, w / 2, h / 2, h * 0.8);
+    g.addColorStop(0, `hsl(${baseHue}, 55%, 22%)`);
+    g.addColorStop(0.6, `hsl(${(baseHue + 30) % 360}, 50%, 12%)`);
+    g.addColorStop(1, '#050a14');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, w, h);
+
+    // Golden ambient glow in center
+    const glow = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w * 0.7);
+    glow.addColorStop(0, 'rgba(212, 175, 55, 0.08)');
+    glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, w, h);
+
+    // Subtle twinkling golden particles
+    const rng = mulberry32(seed + 99);
+    for (let i = 0; i < 70; i++) {
+        const x = rng() * w, y = rng() * h, r = rng() * 2.5 + 0.5;
+        const alpha = Math.max(0.1, Math.min(0.85, 0.35 + Math.sin(progress * Math.PI * 2 + i * 0.7) * 0.35));
+        ctx.fillStyle = i % 3 === 0 ? `rgba(212, 175, 55, ${alpha})` : `rgba(255, 255, 255, ${alpha * 0.7})`;
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.fill();
+    }
 }
 
 /* ── CANVAS DRAWING ── */
@@ -882,7 +906,7 @@ function drawFrame(ctx, w, h, fs, ayahs, imgs, time) {
     // label (surah name + verse number)
     const surahNames = SURAH_NAMES;
     const lz = Math.round(13 * fs); ctx.font = lz + 'px "Tajawal",sans-serif'; ctx.fillStyle = 'rgba(212,175,55,0.7)'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-    const labelText = surahNames[curAyah.surah - 1] + ' - آية ' + curAyah.displayNum;
+    const labelText = surahNames[curAyah.surah - 1] + (curAyah.displayNum ? ' - آية ' + curAyah.displayNum : '');
     ctx.fillText(labelText, w / 2, 25 * fs);
 }
 
@@ -908,6 +932,16 @@ async function handleGenerate() {
     const err = validate(); if (err) { showErr(err); return; }
     cancelled = false; setGen(true); showProg();
     $('previewPlaceholder').style.display = 'none';
+
+    // Ensure audio context is unlocked & fonts are loaded
+    try {
+        const ac = getAudioCtx();
+        if (ac.state === 'suspended') await ac.resume();
+    } catch (e) { }
+
+    if (document.fonts && document.fonts.ready) {
+        try { await document.fonts.ready; } catch (e) { }
+    }
 
     const surah = parseInt($('surahSelect').value, 10), start = parseInt($('ayahStart').value, 10), end = parseInt($('ayahEnd').value, 10);
     const recIdx = parseInt($('reciterSelect').value, 10);
@@ -1063,10 +1097,15 @@ async function encodeWebCodecs(rCtx, pCtx, w, h, fps, fs, ayahs, imgs, merged, s
     if (hasAAC) muxCfg.audio = { codec: 'aac', numberOfChannels: 1, sampleRate: sr };
     const muxer = new Muxer(muxCfg);
 
-    // Video encoder
+    // Video encoder with safe duration for mp4-muxer
     const vEnc = new VideoEncoder({
-        output: (ch, meta) => muxer.addVideoChunk(ch, meta),
-        error: (e) => { throw e; }
+        output: (ch, meta) => {
+            const dur = Number.isFinite(ch.duration) && ch.duration > 0 ? ch.duration : Math.round(fi);
+            const data = new Uint8Array(ch.byteLength);
+            ch.copyTo(data);
+            muxer.addVideoChunkRaw(data, ch.type, ch.timestamp, dur, meta);
+        },
+        error: (e) => { console.error('VideoEncoder error:', e); throw e; }
     });
 
     // Pick appropriate codec level
@@ -1079,10 +1118,18 @@ async function encodeWebCodecs(rCtx, pCtx, w, h, fps, fs, ayahs, imgs, merged, s
 
     vEnc.configure({ codec, width: w, height: h, bitrate: prof.vbr, framerate: fps, avc: { format: 'avc' } });
 
-    // Audio encoder
+    // Audio encoder with safe duration for mp4-muxer
     let aEnc = null;
     if (hasAAC) {
-        aEnc = new AudioEncoder({ output: (ch, meta) => muxer.addAudioChunk(ch, meta), error: (e) => { throw e; } });
+        aEnc = new AudioEncoder({
+            output: (ch, meta) => {
+                const dur = Number.isFinite(ch.duration) && ch.duration > 0 ? ch.duration : Math.round(1024 * (1000000 / sr));
+                const data = new Uint8Array(ch.byteLength);
+                ch.copyTo(data);
+                muxer.addAudioChunkRaw(data, ch.type, ch.timestamp, dur, meta);
+            },
+            error: (e) => { console.error('AudioEncoder error:', e); throw e; }
+        });
         aEnc.configure({ codec: 'mp4a.40.2', sampleRate: sr, numberOfChannels: 1, bitrate: prof.abr });
     }
 
@@ -1093,7 +1140,7 @@ async function encodeWebCodecs(rCtx, pCtx, w, h, fps, fs, ayahs, imgs, merged, s
         if (cancelled) { vEnc.close(); if (aEnc) aEnc.close(); throw '__CANCEL__'; }
         drawFrame(rCtx, w, h, fs, ayahs, imgs, f / fps);
         if (f % previewEvery === 0) pCtx.drawImage($('recordCanvas'), 0, 0, pCtx.canvas.width, pCtx.canvas.height);
-        const vf = new VideoFrame($('recordCanvas'), { timestamp: Math.round(f * fi) });
+        const vf = new VideoFrame($('recordCanvas'), { timestamp: Math.round(f * fi), duration: Math.round(fi) });
         vEnc.encode(vf, { keyFrame: f % (fps * 2) === 0 }); vf.close();
         // Flush encoder periodically to prevent backpressure buildup
         if (f % FLUSH_EVERY === FLUSH_EVERY - 1) { await vEnc.flush(); }
