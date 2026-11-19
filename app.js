@@ -4,7 +4,7 @@
 'use strict';
 
 // ── API Keys (Allow custom keys via localStorage or settings) ──
-let PIXABAY_KEY = localStorage.getItem('custom_pixabay_key') || '34128042-b8f7a9ec238f6a9e676371552';
+let PIXABAY_KEY = localStorage.getItem('custom_pixabay_key') || '58725651-e79852d2ad13e89925396d3e6';
 let PEXELS_KEY = localStorage.getItem('custom_pexels_key') || 'ml2IGQQY9oL1xEcMvg2OKeiBOnRMyWXXHOkRLByTukIuVL9dev3FGbad';
 
 // ── mp4-muxer (loaded dynamically) ──
@@ -477,8 +477,64 @@ function updateBgSubItems() {
     }
 }
 
+const ARABIC_QUERY_MAP = {
+    'مطر': 'rain drops storm',
+    'امطار': 'rain storm clouds',
+    'غيوم': 'dramatic clouds sky',
+    'سحاب': 'clouds timelapse sky',
+    'سحب': 'clouds timelapse sky',
+    'غروب': 'sunset golden horizon',
+    'شروق': 'sunrise morning mountain',
+    'بحر': 'ocean waves sea',
+    'محيط': 'deep ocean blue water',
+    'امواج': 'ocean waves crashing',
+    'كعبة': 'kaaba makkah holy',
+    'الكعبة': 'kaaba makkah holy',
+    'مكة': 'makkah holy mosque',
+    'حرم': 'masjid haram makkah',
+    'الحرم': 'masjid haram makkah',
+    'مسجد': 'mosque architecture dome',
+    'مساجد': 'beautiful mosque minaret',
+    'المدينة': 'masjid nabawi medina',
+    'جبل': 'mountain peaks mist',
+    'جبال': 'mountain landscape drone',
+    'ليل': 'night sky stars galaxy',
+    'نجوم': 'starry night sky milky way',
+    'فضاء': 'galaxy stars cosmos universe',
+    'شلال': 'waterfall forest river',
+    'شلالات': 'waterfall tropical jungle',
+    'غابة': 'forest trees mist sunbeams',
+    'غابات': 'tall pine forest nature',
+    'صحراء': 'desert sand dunes sunset',
+    'رمال': 'golden desert dunes',
+    'طبيعة': 'nature landscape scenery',
+    'ورد': 'blooming flowers garden',
+    'زهور': 'flowers spring blossom',
+    'ازهار': 'flowers field wind',
+    'نور': 'golden light rays bokeh',
+    'اضاءة': 'cinematic light particles bokeh',
+    'شمعة': 'candle flame dark lantern',
+    'شموع': 'candle light warm dark'
+};
+
+function translateArabicQuery(inputStr) {
+    if (!inputStr) return '';
+    const clean = inputStr.trim().toLowerCase();
+    for (const [ar, en] of Object.entries(ARABIC_QUERY_MAP)) {
+        if (clean.includes(ar)) return en;
+    }
+    if (/[\u0600-\u06FF]/.test(clean)) {
+        return 'nature landscape scenery';
+    }
+    return clean;
+}
+
 function getSelectedBgQueries() {
-    const catKey = $('bgCategory').value;
+    const customInput = $('customSearchQuery');
+    if (customInput && customInput.value.trim()) {
+        return [translateArabicQuery(customInput.value.trim())];
+    }
+    const catKey = $('bgCategory') ? $('bgCategory').value : 'random';
     if (catKey === 'random') return IMG_QUERIES_FALLBACK;
     const cat = BG_CATEGORIES[catKey];
     if (!cat) return IMG_QUERIES_FALLBACK;
@@ -606,15 +662,10 @@ async function fetchAudio(recIdx, surah, ayah) {
 function getAudioCtx() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); return audioCtx; }
 async function decodeAudioBuf(ab) { return await getAudioCtx().decodeAudioData(ab.slice(0)); }
 
-/* ── IMAGE PROVIDERS ── */
-function loadImg(url) {
-    return new Promise(r => {
-        const img = new Image(); img.crossOrigin = 'anonymous';
-        img.onload = () => r(img); img.onerror = () => r(null); img.src = url;
-    });
-}
+/* ── MEDIA ENGINE (Video-First with Image Fallback) ── */
+const usedMediaIds = new Set();
 
-// Pre-approved Safe Nature/Islamic Images (Curated high-res with guaranteed CORS)
+// Pre-approved Safe Nature/Islamic Images (Curated high-res with guaranteed CORS fallback)
 const SAFE_FALLBACK_IMAGES = [
     'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1280&q=80',
     'https://images.unsplash.com/photo-1519817650390-64a93db51149?auto=format&fit=crop&w=1280&q=80',
@@ -630,11 +681,151 @@ const SAFE_FALLBACK_IMAGES = [
     'https://images.pexels.com/photos/3225517/pexels-photo-3225517.jpeg?auto=compress&cs=tinysrgb&h=1280'
 ];
 
-// Global image dedup set — reset per generation
-const usedImageIds = new Set();
+function isSafeTags(tagsStr) {
+    if (!tagsStr) return true;
+    const t = tagsStr.toLowerCase();
+    return !/\b(woman|girl|female|lady|sex|model|face|people|person|man|boy|body|hair|skin|fashion|love|couple|wedding|party|music|dance|concert|christian|selfie|crowd|baby|family|child|kid|student|teacher|fitness|sport|swim|nurse|doctor|portrait)\b/i.test(t);
+}
+
+function loadImg(url) {
+    return new Promise(r => {
+        const img = new Image(); img.crossOrigin = 'anonymous';
+        img.onload = () => r(img); img.onerror = () => r(null); img.src = url;
+    });
+}
+
+async function loadVideoBlob(url) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 12000);
+    try {
+        const resp = await fetch(url, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (!resp.ok) return null;
+        const blob = await resp.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const video = document.createElement('video');
+        video.crossOrigin = 'anonymous';
+        video.muted = true;
+        video.playsInline = true;
+        video.preload = 'auto';
+        video.src = blobUrl;
+
+        await new Promise((resolve) => {
+            const t = setTimeout(() => resolve(), 8000);
+            video.onloadeddata = () => { clearTimeout(t); resolve(); };
+            video.onerror = () => { clearTimeout(t); resolve(); };
+        });
+
+        if (video.videoWidth > 0 && video.duration > 0) {
+            return {
+                type: 'video',
+                element: video,
+                duration: video.duration,
+                width: video.videoWidth,
+                height: video.videoHeight,
+                blobUrl: blobUrl
+            };
+        } else {
+            URL.revokeObjectURL(blobUrl);
+            return null;
+        }
+    } catch (e) {
+        clearTimeout(timeoutId);
+        return null;
+    }
+}
+
+function chooseBestPexelsFile(files, qualityKey) {
+    const mp4Files = files.filter(f => f.link && (f.file_type === 'video/mp4' || f.link.includes('mp4')));
+    if (!mp4Files.length) return files[0];
+
+    const sorted = [...mp4Files].sort((a, b) => {
+        const score = (f) => {
+            let s = 0;
+            const w = f.width || 0, h = f.height || 0;
+            if (h > w) s += 100; // Prefer vertical video for reels
+            if (h >= 640 && h <= 1280) s += 50; // Ideal resolution range
+            else if (h > 1280 && h <= 1920) s += 30;
+            else if (h < 480) s -= 30;
+            if (f.quality === 'hd') s += 15;
+            return s;
+        };
+        return score(b) - score(a);
+    });
+
+    return sorted[0];
+}
+
+async function fetchPexelsVideo(query, qualityKey) {
+    if (!PEXELS_KEY) return null;
+    try {
+        const page = Math.floor(Math.random() * 3) + 1;
+        const safeQ = encodeURIComponent(query);
+        let url = `https://api.pexels.com/videos/search?query=${safeQ}&orientation=portrait&per_page=12&page=${page}`;
+        let resp = await fetch(url, { headers: { 'Authorization': PEXELS_KEY } });
+        if (!resp.ok) {
+            url = `https://api.pexels.com/videos/search?query=${safeQ}&per_page=12&page=${page}`;
+            resp = await fetch(url, { headers: { 'Authorization': PEXELS_KEY } });
+        }
+        if (!resp.ok) return null;
+        const data = await resp.json();
+        if (!data.videos || !data.videos.length) return null;
+
+        const pool = data.videos.filter(v => v.duration >= 3 && v.duration <= 120 && !usedMediaIds.has('pex_v_' + v.id));
+        const pick = pool.length ? pool[Math.floor(Math.random() * pool.length)] : data.videos[0];
+        if (!pick || !pick.video_files || !pick.video_files.length) return null;
+
+        usedMediaIds.add('pex_v_' + pick.id);
+        const bestFile = chooseBestPexelsFile(pick.video_files, qualityKey);
+        if (!bestFile || !bestFile.link) return null;
+
+        return await loadVideoBlob(bestFile.link);
+    } catch (e) {
+        console.warn('Pexels video error:', e);
+        return null;
+    }
+}
+
+async function fetchPixabayVideo(query, qualityKey) {
+    if (!PIXABAY_KEY) return null;
+    try {
+        const page = Math.floor(Math.random() * 3) + 1;
+        const safeQ = encodeURIComponent(query);
+        const url = `https://pixabay.com/api/videos/?key=${PIXABAY_KEY}&q=${safeQ}&video_type=film&safesearch=true&per_page=15&page=${page}`;
+        const resp = await fetch(url);
+        if (!resp.ok) return null;
+        const data = await resp.json();
+        if (!data.hits || !data.hits.length) return null;
+
+        const pool = data.hits.filter(h => isSafeTags(h.tags) && h.duration >= 3 && !usedMediaIds.has('pix_v_' + h.id));
+        const pick = pool.length ? pool[Math.floor(Math.random() * pool.length)] : data.hits[0];
+        if (!pick || !pick.videos) return null;
+
+        usedMediaIds.add('pix_v_' + pick.id);
+        const vids = pick.videos;
+        const candidate = vids.small?.url ? vids.small : (vids.medium?.url ? vids.medium : (vids.tiny?.url ? vids.tiny : vids.large));
+        if (!candidate || !candidate.url) return null;
+
+        return await loadVideoBlob(candidate.url);
+    } catch (e) {
+        console.warn('Pixabay video error:', e);
+        return null;
+    }
+}
+
+async function fetchVideo(query, qualityKey) {
+    // 1. Try Pexels Video first
+    const pex = await fetchPexelsVideo(query, qualityKey);
+    if (pex) return pex;
+
+    // 2. Try Pixabay Video second
+    const pix = await fetchPixabayVideo(query, qualityKey);
+    if (pix) return pix;
+
+    return null;
+}
 
 async function fetchImage(forcedQuery) {
-    // Safe fallback terms
     const SAFE_FALLBACK_TERMS = [
         'mountain landscape', 'desert sunset', 'mosque architecture',
         'islamic pattern', 'ocean waves', 'forest sunrise',
@@ -642,115 +833,107 @@ async function fetchImage(forcedQuery) {
         'islamic geometric dark'
     ];
 
-    let baseQ;
-    if (forcedQuery) {
-        baseQ = forcedQuery;
-    } else {
-        const userQueries = getSelectedBgQueries();
-        if (userQueries && userQueries.length) {
-            baseQ = userQueries[Math.floor(Math.random() * userQueries.length)];
-        } else {
-            baseQ = SAFE_FALLBACK_TERMS[Math.floor(Math.random() * SAFE_FALLBACK_TERMS.length)];
-        }
-    }
-
-    // DO NOT append STRICT_FILTERS to query — it confuses APIs.
-    // Filters are applied only via tag/alt validation below.
+    let baseQ = forcedQuery || (getSelectedBgQueries() ? getSelectedBgQueries()[0] : null) || SAFE_FALLBACK_TERMS[Math.floor(Math.random() * SAFE_FALLBACK_TERMS.length)];
     const q = baseQ;
 
-    // Helper to check tags for forbidden terms
-    const isSafeTags = (tagsStr) => {
-        if (!tagsStr) return true;
-        const t = tagsStr.toLowerCase();
-        return !/\b(woman|girl|female|lady|sex|model|face|people|person|man|boy|body|hair|skin|fashion|love|couple|wedding|party|music|dance|concert|christian|selfie|crowd|baby|family|child|kid|student|teacher|fitness|sport|swim|nurse|doctor|portrait)\b/i.test(t);
-    };
-
-    // PERFORMANCE: Use API metadata for dimension check (no download needed)
-    const isLandscapeMeta = (w, h) => w && h && w >= h;
-
-    // Helper: pick from pool avoiding duplicates
-    const pickUnique = (pool, idFn) => {
-        const available = pool.filter(item => !usedImageIds.has(idFn(item)));
-        if (available.length) {
-            const pick = available[Math.floor(Math.random() * available.length)];
-            usedImageIds.add(idFn(pick));
-            return pick;
-        }
-        // If all are used, pick any
-        if (pool.length) return pool[Math.floor(Math.random() * pool.length)];
-        return null;
-    };
-
-    // 1) Pixabay — Clean query, no STRICT_FILTERS in URL
+    // 1) Pixabay photo
     try {
-        const pg = Math.floor(Math.random() * 5) + 1;
+        const pg = Math.floor(Math.random() * 4) + 1;
         const safeQ = encodeURIComponent(q);
-        const catKey = $('bgCategory') ? $('bgCategory').value : 'random';
-        const holyTerms = ['kaaba', 'masjid', 'mosque', 'islamic', 'makkah', 'medina', 'calligraphy', 'arabesque', 'minaret'];
-        const isHoly = holyTerms.some(t => baseQ.toLowerCase().includes(t));
-        const isAbstract = catKey === 'abstract' || baseQ.toLowerCase().includes('abstract') || baseQ.toLowerCase().includes('bokeh') || baseQ.toLowerCase().includes('smoke') || baseQ.toLowerCase().includes('gold texture');
-        const pixCat = isHoly ? 'buildings' : isAbstract ? 'backgrounds' : 'nature';
-        const u = 'https://pixabay.com/api/?key=' + PIXABAY_KEY + '&q=' + safeQ + '&image_type=photo&orientation=horizontal&safesearch=true&category=' + pixCat + '&per_page=30&page=' + pg;
-
+        const u = `https://pixabay.com/api/?key=${PIXABAY_KEY}&q=${safeQ}&image_type=photo&orientation=horizontal&safesearch=true&per_page=20&page=${pg}`;
         const r = await fetch(u);
         if (r.ok) {
             const j = await r.json();
             if (j.hits && j.hits.length) {
-                const pool = j.hits.filter(h => isSafeTags(h.tags) && isLandscapeMeta(h.imageWidth, h.imageHeight));
-                const pick = pickUnique(pool, h => 'px_' + h.id);
+                const pool = j.hits.filter(h => isSafeTags(h.tags) && !usedMediaIds.has('px_i_' + h.id));
+                const pick = pool.length ? pool[Math.floor(Math.random() * pool.length)] : j.hits[0];
                 if (pick) {
+                    usedMediaIds.add('px_i_' + pick.id);
                     const img = await loadImg(pick.largeImageURL || pick.webformatURL);
-                    if (img) return img;
+                    if (img) return { type: 'image', element: img, id: 'px_' + pick.id };
                 }
             }
         }
-    } catch (e) { console.error('Pixabay err:', e); }
+    } catch (e) { console.error('Pixabay photo err:', e); }
 
-    // 2) Pexels — Clean query
+    // 2) Pexels photo
     try {
         const safeQ = encodeURIComponent(q);
-        const u = 'https://api.pexels.com/v1/search?query=' + safeQ + '&orientation=landscape&per_page=30&page=' + (Math.floor(Math.random() * 5) + 1);
+        const u = `https://api.pexels.com/v1/search?query=${safeQ}&orientation=landscape&per_page=20&page=${Math.floor(Math.random() * 4) + 1}`;
         const r = await fetch(u, { headers: { 'Authorization': PEXELS_KEY } });
         if (r.ok) {
             const j = await r.json();
             if (j.photos && j.photos.length) {
-                const pool = j.photos.filter(p => isSafeTags(p.alt) && isLandscapeMeta(p.width, p.height));
-                const pick = pickUnique(pool, p => 'pe_' + p.id);
+                const pool = j.photos.filter(p => isSafeTags(p.alt) && !usedMediaIds.has('pe_i_' + p.id));
+                const pick = pool.length ? pool[Math.floor(Math.random() * pool.length)] : j.photos[0];
                 if (pick) {
+                    usedMediaIds.add('pe_i_' + pick.id);
                     const img = await loadImg(pick.src.large2x || pick.src.large || pick.src.original);
-                    if (img) return img;
+                    if (img) return { type: 'image', element: img, id: 'pe_' + pick.id };
                 }
             }
         }
-    } catch (e) { console.error('Pexels err:', e); }
+    } catch (e) { console.error('Pexels photo err:', e); }
 
-    // 3) Openverse — Fallback API
+    // 3) Curated Unsplash Safe Fallback
     try {
-        const safeQ = encodeURIComponent(q);
-        const u = 'https://api.openverse.org/v1/images/?q=' + safeQ + '&page_size=30';
-        const r = await fetch(u);
-        if (r.ok) {
-            const j = await r.json();
-            if (j.results && j.results.length) {
-                const pool = j.results.filter(p => {
-                    const t = Array.isArray(p.tags) ? p.tags.map(x => x.name).join(' ') : (p.tags || '');
-                    return isSafeTags(t) && isSafeTags(p.title) && isLandscapeMeta(p.width, p.height);
-                });
-                const pick = pickUnique(pool, p => 'ov_' + p.id);
-                if (pick) {
-                    const img = await loadImg(pick.url || pick.thumbnail);
-                    if (img) return img;
-                }
-            }
-        }
-    } catch (e) { console.error('Openverse err:', e); }
-
-    // 4) FINAL SAFETY FALLBACK
-    try {
-        console.warn('All APIs failed/unsafe. Using SAFE FALLBACK.');
         const fallbackUrl = SAFE_FALLBACK_IMAGES[Math.floor(Math.random() * SAFE_FALLBACK_IMAGES.length)];
-        return await loadImg(fallbackUrl);
-    } catch (e) { return null; }
+        const img = await loadImg(fallbackUrl);
+        if (img) return { type: 'image', element: img, id: fallbackUrl };
+    } catch (e) { }
+
+    return null;
+}
+
+async function fetchBackgroundMedia(forcedQuery, qualityKey) {
+    let query = forcedQuery;
+    if (!query) {
+        const queries = getSelectedBgQueries();
+        query = (queries && queries.length)
+            ? queries[Math.floor(Math.random() * queries.length)]
+            : 'mountain landscape';
+    }
+
+    // 1. Try Video first (High-quality motion footage)
+    try {
+        const videoMedia = await fetchVideo(query, qualityKey);
+        if (videoMedia) {
+            console.log('🎬 Using cinematic video background for:', query);
+            return videoMedia;
+        }
+    } catch (e) {
+        console.warn('Video fetch failed, falling back to image:', e);
+    }
+
+    // 2. Fallback to Image
+    try {
+        console.warn('📷 Falling back to high-res photo for:', query);
+        const imgMedia = await fetchImage(query);
+        if (imgMedia) return imgMedia;
+    } catch (e) {
+        console.warn('Image fetch failed, falling back to procedural:', e);
+    }
+
+    // 3. Ultimate Fallback: Royal Procedural Background
+    return { type: 'procedural' };
+}
+
+function cleanupMedia(mediaList) {
+    if (!mediaList || !Array.isArray(mediaList)) return;
+    for (const m of mediaList) {
+        if (m && m.type === 'video') {
+            try {
+                if (m.element) {
+                    m.element.pause();
+                    m.element.src = '';
+                    m.element.load();
+                }
+                if (m.blobUrl) {
+                    URL.revokeObjectURL(m.blobUrl);
+                }
+            } catch (e) { }
+        }
+    }
 }
 
 /* ── PROCEDURAL BG FALLBACK ── */
@@ -862,52 +1045,162 @@ function wrapText(ctx, text, maxW) {
     if (cur) lines.push(cur); return lines;
 }
 
-function drawFrame(ctx, w, h, fs, ayahs, imgs, time) {
+function drawCoverMedia(ctx, el, w, h) {
+    const nw = el.videoWidth || el.naturalWidth || el.width;
+    const nh = el.videoHeight || el.naturalHeight || el.height;
+    if (!nw || !nh) return;
+
+    const r = nw / nh;
+    const cr = w / h;
+    let dw, dh;
+    if (r > cr) {
+        dh = h;
+        dw = dh * r;
+    } else {
+        dw = w;
+        dh = dw / r;
+    }
+    const dx = (w - dw) / 2;
+    const dy = (h - dh) / 2;
+    ctx.drawImage(el, dx, dy, dw, dh);
+}
+
+function seekVideo(v, t) {
+    return new Promise(res => {
+        if (!v || !v.duration) return res();
+        const safeT = Math.max(0, Math.min(t, v.duration - 0.05));
+        if (Math.abs(v.currentTime - safeT) < 0.005) return res();
+        let done = false;
+        const onSeek = () => {
+            if (!done) {
+                done = true;
+                v.removeEventListener('seeked', onSeek);
+                res();
+            }
+        };
+        v.addEventListener('seeked', onSeek, { once: true });
+        setTimeout(() => {
+            if (!done) {
+                done = true;
+                v.removeEventListener('seeked', onSeek);
+                res();
+            }
+        }, 120);
+        v.currentTime = safeT;
+    });
+}
+
+async function drawMediaBackground(ctx, media, w, h, progress, seed, sceneTime) {
+    if (!media) {
+        drawProcBg(ctx, w, h, progress, seed);
+        return;
+    }
+    if (media.type === 'video' && media.element) {
+        const v = media.element;
+        const targetTime = (Math.max(0, sceneTime) % (media.duration || 10));
+        await seekVideo(v, targetTime);
+        drawCoverMedia(ctx, v, w, h);
+    } else if (media.type === 'image' && media.element) {
+        drawKenBurns(ctx, media.element, w, h, progress, seed);
+    } else {
+        drawProcBg(ctx, w, h, progress, seed);
+    }
+}
+
+async function drawFrame(ctx, w, h, fs, ayahs, mediaList, time) {
     const typo = getTypoSettings();
     let el = 0, idx = 0, prog = 0;
-    for (let i = 0; i < ayahs.length; i++) { if (time < el + ayahs[i].dur) { idx = i; prog = (time - el) / ayahs[i].dur; break; } el += ayahs[i].dur; if (i === ayahs.length - 1) { idx = i; prog = 1; } }
-    ctx.clearRect(0, 0, w, h);
-    drawKenBurns(ctx, imgs[idx], w, h, prog, idx);
-    // Enhanced crossfade with longer duration for smoother transitions
-    const fadeDuration = 0.15;  // 15% of verse duration for fade
-    if (prog < fadeDuration && idx > 0) {
-        ctx.globalAlpha = 1 - prog / fadeDuration;
-        drawKenBurns(ctx, imgs[idx - 1], w, h, 1, idx - 1);
-        ctx.globalAlpha = 1;
+    for (let i = 0; i < ayahs.length; i++) {
+        if (time < el + ayahs[i].dur) {
+            idx = i;
+            prog = (time - el) / ayahs[i].dur;
+            break;
+        }
+        el += ayahs[i].dur;
+        if (i === ayahs.length - 1) { idx = i; prog = 1; }
     }
-    // overlay
-    ctx.fillStyle = 'rgba(0,0,0,0.45)'; ctx.fillRect(0, 0, w, h);
-    // deco frame
-    const s = 40 * fs, m = 20 * fs; ctx.strokeStyle = 'rgba(212,175,55,0.3)'; ctx.lineWidth = 2 * fs;
+    const sceneTime = time - el;
+    const curMedia = mediaList ? mediaList[idx] : null;
+
+    ctx.clearRect(0, 0, w, h);
+
+    // 1. Draw current background scene (video, image or procedural)
+    await drawMediaBackground(ctx, curMedia, w, h, prog, idx, sceneTime);
+
+    // 2. Crossfade transition between scenes
+    const fadeDuration = 0.15;
+    if (prog < fadeDuration && idx > 0 && mediaList) {
+        const prevMedia = mediaList[idx - 1];
+        const prevSceneTime = ayahs[idx - 1].dur;
+        ctx.save();
+        ctx.globalAlpha = 1 - (prog / fadeDuration);
+        await drawMediaBackground(ctx, prevMedia, w, h, 1, idx - 1, prevSceneTime);
+        ctx.restore();
+    }
+
+    // 3. Cinematic Vignette & Lighting Gradients
+    const vg = ctx.createLinearGradient(0, 0, 0, h);
+    vg.addColorStop(0, 'rgba(0, 0, 0, 0.65)');
+    vg.addColorStop(0.18, 'rgba(0, 0, 0, 0.35)');
+    vg.addColorStop(0.5, 'rgba(0, 0, 0, 0.38)');
+    vg.addColorStop(0.82, 'rgba(0, 0, 0, 0.40)');
+    vg.addColorStop(1, 'rgba(0, 0, 0, 0.70)');
+    ctx.fillStyle = vg;
+    ctx.fillRect(0, 0, w, h);
+
+    // Subtle golden ambient aura in center behind Quran text
+    const aura = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, w * 0.5);
+    aura.addColorStop(0, 'rgba(212, 175, 55, 0.09)');
+    aura.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = aura;
+    ctx.fillRect(0, 0, w, h);
+
+    // 4. Islamic Corner Motifs (Deco frame)
+    const s = 36 * fs, m = 18 * fs;
+    ctx.strokeStyle = 'rgba(212, 175, 55, 0.4)';
+    ctx.lineWidth = 1.8 * fs;
     ctx.beginPath(); ctx.moveTo(w - m, m + s); ctx.lineTo(w - m, m); ctx.lineTo(w - m - s, m); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(m, m + s); ctx.lineTo(m, m); ctx.lineTo(m + s, m); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(w - m, h - m - s); ctx.lineTo(w - m, h - m); ctx.lineTo(w - m - s, h - m); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(m, h - m - s); ctx.lineTo(m, h - m); ctx.lineTo(m + s, h - m); ctx.stroke();
 
-    // Display text with verse number (if exists)
+    // 5. Quranic Text
     const curAyah = ayahs[idx];
     const displayText = curAyah.displayNum !== null && curAyah.displayNum !== undefined
         ? curAyah.text + ' ﴿' + curAyah.displayNum + '﴾'
         : curAyah.text;
 
-    // text with typography settings
     const fz = Math.round(typo.fontSize * fs);
     ctx.font = '700 ' + fz + 'px "' + typo.fontFamily.split(',')[0] + '",' + typo.fontFamily.split(',').slice(1).join(',');
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.direction = 'rtl';
-    const lines = wrapText(ctx, displayText, w * 0.82);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.direction = 'rtl';
+    const lines = wrapText(ctx, displayText, w * 0.84);
     const lh = fz * typo.lineSpacing;
     const th = lines.length * lh;
     const sy = (h - th) / 2 + lh / 2;
-    // Shadow from font color
-    ctx.shadowColor = typo.fontColor + '80'; ctx.shadowBlur = 15 * fs;
+
+    // Deep drop shadow for 100% crisp readability
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.85)';
+    ctx.shadowBlur = 14 * fs;
+    ctx.shadowOffsetY = 2 * fs;
     ctx.fillStyle = typo.fontColor;
-    for (let i = 0; i < lines.length; i++) ctx.fillText(lines[i], w / 2, sy + i * lh);
-    ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0;
-    // label (surah name + verse number)
+    for (let i = 0; i < lines.length; i++) {
+        ctx.fillText(lines[i], w / 2, sy + i * lh);
+    }
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetY = 0;
+
+    // 6. Header label (Surah Name + Verse)
     const surahNames = SURAH_NAMES;
-    const lz = Math.round(13 * fs); ctx.font = lz + 'px "Tajawal",sans-serif'; ctx.fillStyle = 'rgba(212,175,55,0.7)'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-    const labelText = surahNames[curAyah.surah - 1] + (curAyah.displayNum ? ' - آية ' + curAyah.displayNum : '');
-    ctx.fillText(labelText, w / 2, 25 * fs);
+    const lz = Math.round(14 * fs);
+    ctx.font = '600 ' + lz + 'px "Tajawal",sans-serif';
+    ctx.fillStyle = 'rgba(212, 175, 55, 0.9)';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    const labelText = 'سورة ' + surahNames[curAyah.surah - 1] + (curAyah.displayNum ? ' ✦ الآية ' + curAyah.displayNum : '');
+    ctx.fillText(labelText, w / 2, 28 * fs);
 }
 
 /* ── PROGRESS UI ── */
@@ -965,6 +1258,8 @@ async function handleGenerate() {
     updProg(0, `⏱️ الوقت المتوقع: ~${estMinutes} دقيقة — كل المعالجة على جهازك`);
     await yieldUI();
 
+    let uniqueMedia = null;
+
     try {
         const ayahs = [];
 
@@ -993,43 +1288,38 @@ async function handleGenerate() {
         }
         if (cancelled) throw '__CANCEL__';
 
-        // Phase 2: images — fewer on mobile to save memory
-        updProg(20, 'تحميل الصور...');
-        usedImageIds.clear();
+        // Phase 2: Background Media (Videos first, fallback to images)
+        updProg(20, '🎥 جاري البحث عن فيديوهات سينمائية مناسبة...');
+        usedMediaIds.clear();
         const totalScenes = ayahs.length;
-        // Smart Image Count: small verse count = always 1:1, large = adapt to device
-        const calcSmartImageCount = (totalVerses) => {
-            // ≤8 verses? Any device handles that — 1 image per verse
-            if (totalVerses <= 8) return totalVerses;
 
-            // 9+ verses: scale by global deviceScore
-            let ratio;
-            if (deviceScore >= 8) ratio = 1.0;
-            else if (deviceScore >= 5) ratio = 0.5 + (deviceScore - 5) * 0.15;
-            else if (deviceScore >= 3) ratio = 0.3 + (deviceScore - 3) * 0.1;
-            else ratio = 0.25;
-
-            return Math.min(Math.max(4, Math.ceil(totalVerses * ratio)), totalVerses);
+        const calcSmartMediaCount = (totalVerses) => {
+            if (totalVerses <= 3) return Math.min(2, totalVerses);
+            if (totalVerses <= 6) return 3;
+            return Math.min(4, Math.ceil(totalVerses / 2));
         };
 
-        const uniqueCount = calcSmartImageCount(totalScenes);
-        const msg = uniqueCount === totalScenes
-            ? `تحميل ${uniqueCount} صورة مميزة — صورة لكل آية ✨`
-            : `تحميل ${uniqueCount} صورة مميزة لـ ${totalScenes} مشهد...`;
-        updProg(20, msg);
-        console.log(`📊 Device score ${deviceScore.toFixed(1)} | ${totalScenes} verses → ${uniqueCount} unique images`);
+        const uniqueCount = calcSmartMediaCount(totalScenes);
         const categoryQueries = getSelectedBgQueries();
-        const uniqueImgs = await Promise.all(
+
+        uniqueMedia = await Promise.all(
             Array.from({ length: uniqueCount }, (_, i) => {
                 const q2 = categoryQueries && categoryQueries.length
                     ? categoryQueries[i % categoryQueries.length]
                     : null;
-                return fetchImage(q2);
+                return fetchBackgroundMedia(q2, q);
             })
         );
-        // Distribute images across scenes (round-robin reuse)
-        const imgs = ayahs.map((_, i) => uniqueImgs[i % uniqueCount]);
-        updProg(30, 'الصور جاهزة ✓');
+
+        const videoCount = uniqueMedia.filter(m => m && m.type === 'video').length;
+        if (videoCount > 0) {
+            updProg(30, `تم تجهيز ${videoCount} فيديو سينمائي للخلفية بنجاح ✓`);
+        } else {
+            updProg(30, 'تم تجهيز صور الخلفية عالية الدقة بنجاح ✓');
+        }
+
+        // Distribute media across scenes (round-robin reuse)
+        const mediaList = ayahs.map((_, i) => uniqueMedia[i % uniqueCount]);
         if (cancelled) throw '__CANCEL__';
 
         // Phase 3: play live audio preview during render
@@ -1044,7 +1334,7 @@ async function handleGenerate() {
             liveAudioSrc.connect(ac.destination); liveAudioSrc.start(0);
         } catch (e) { /* silent fail on audio preview */ }
 
-        const blob = await renderAndEncode(ayahs, imgs, prof);
+        const blob = await renderAndEncode(ayahs, mediaList, prof);
         try { if (liveAudioSrc) liveAudioSrc.stop(); } catch (e) { }
         // Free raw audio buffers to release memory
         for (const a of ayahs) { a.raw = null; a.buf = null; }
@@ -1054,11 +1344,14 @@ async function handleGenerate() {
         hideProg();
         if (e === '__CANCEL__' || e.message === '__CANCEL__') showErr('تم إلغاء العملية.');
         else showErr(e.message || 'حدث خطأ غير متوقع.');
-    } finally { setGen(false); }
+    } finally {
+        if (uniqueMedia) cleanupMedia(uniqueMedia);
+        setGen(false);
+    }
 }
 
 /* ── RENDER & ENCODE ── */
-async function renderAndEncode(ayahs, imgs, prof) {
+async function renderAndEncode(ayahs, mediaList, prof) {
     const w = prof.w, h = prof.h, fps = prof.fps, fs = w / 480;
     const recC = $('recordCanvas'); recC.width = w; recC.height = h;
     const prevC = $('previewCanvas'); prevC.width = w; prevC.height = h;
@@ -1074,16 +1367,16 @@ async function renderAndEncode(ayahs, imgs, prof) {
 
     // Try WebCodecs
     if (typeof VideoEncoder !== 'undefined' && Mp4Muxer) {
-        try { return await encodeWebCodecs(rCtx, pCtx, w, h, fps, fs, ayahs, imgs, merged, sr, totalFrames, prof); }
-        catch (e) { /* fall through */ }
+        try { return await encodeWebCodecs(rCtx, pCtx, w, h, fps, fs, ayahs, mediaList, merged, sr, totalFrames, prof); }
+        catch (e) { console.warn('WebCodecs failed, falling back:', e); }
     }
 
     // Fallback: MediaRecorder + FFmpeg.wasm
-    return await encodeFallback(rCtx, pCtx, w, h, fps, fs, ayahs, imgs, merged, sr, totalDur, totalFrames, prof);
+    return await encodeFallback(rCtx, pCtx, w, h, fps, fs, ayahs, mediaList, merged, sr, totalDur, totalFrames, prof);
 }
 
 /* ── WEBCODECS ENCODER ── */
-async function encodeWebCodecs(rCtx, pCtx, w, h, fps, fs, ayahs, imgs, merged, sr, totalFrames, prof) {
+async function encodeWebCodecs(rCtx, pCtx, w, h, fps, fs, ayahs, mediaList, merged, sr, totalFrames, prof) {
     const { Muxer, ArrayBufferTarget } = Mp4Muxer;
     const fi = 1000000 / fps; // frame interval in µs
 
@@ -1138,7 +1431,7 @@ async function encodeWebCodecs(rCtx, pCtx, w, h, fps, fs, ayahs, imgs, merged, s
     const previewEvery = isOldPhone ? 32 : isMobile ? 16 : 8;
     for (let f = 0; f < totalFrames; f++) {
         if (cancelled) { vEnc.close(); if (aEnc) aEnc.close(); throw '__CANCEL__'; }
-        drawFrame(rCtx, w, h, fs, ayahs, imgs, f / fps);
+        await drawFrame(rCtx, w, h, fs, ayahs, mediaList, f / fps);
         if (f % previewEvery === 0) pCtx.drawImage($('recordCanvas'), 0, 0, pCtx.canvas.width, pCtx.canvas.height);
         const vf = new VideoFrame($('recordCanvas'), { timestamp: Math.round(f * fi), duration: Math.round(fi) });
         vEnc.encode(vf, { keyFrame: f % (fps * 2) === 0 }); vf.close();
@@ -1179,7 +1472,7 @@ async function encodeWebCodecs(rCtx, pCtx, w, h, fps, fs, ayahs, imgs, merged, s
 }
 
 /* ── FALLBACK ENCODER ── */
-async function encodeFallback(rCtx, pCtx, w, h, fps, fs, ayahs, imgs, merged, sr, totalDur, totalFrames, prof) {
+async function encodeFallback(rCtx, pCtx, w, h, fps, fs, ayahs, mediaList, merged, sr, totalDur, totalFrames, prof) {
     if (typeof MediaRecorder === 'undefined') throw new Error('متصفحك لا يدعم تصدير الفيديو. يرجى استخدام Chrome أو Edge.');
 
     const recC = $('recordCanvas');
@@ -1208,7 +1501,7 @@ async function encodeFallback(rCtx, pCtx, w, h, fps, fs, ayahs, imgs, merged, sr
     const previewEvery = PREVIEW_EVERY;
     for (let f = 0; f < totalFrames; f++) {
         if (cancelled) { rec.stop(); src.stop(); ac.close(); throw '__CANCEL__'; }
-        drawFrame(rCtx, w, h, fs, ayahs, imgs, f / fps);
+        await drawFrame(rCtx, w, h, fs, ayahs, mediaList, f / fps);
         if (f % previewEvery === 0) pCtx.drawImage(recC, 0, 0, pCtx.canvas.width, pCtx.canvas.height);
         if (f % yieldEvery === 0) { const el = (performance.now() - t0) / 1000, left = totalFrames - f, spd = f > 0 ? f / el : fps; updProg(35 + (f / totalFrames) * 40, 'تسجيل: إطار ' + f + '/' + totalFrames, left / spd); }
         await new Promise(r => requestAnimationFrame(r));
@@ -1269,4 +1562,4 @@ function loadScript(src) {
 }
 
 /* ── STARTUP ── */
-init();
+init().catch(e => console.error('INIT FATAL ERROR:', e));
