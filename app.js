@@ -886,6 +886,7 @@ async function fetchImage(forcedQuery) {
 }
 
 async function fetchBackgroundMedia(forcedQuery, qualityKey) {
+    const mode = $('mediaMode') ? $('mediaMode').value : 'image';
     let query = forcedQuery;
     if (!query) {
         const queries = getSelectedBgQueries();
@@ -894,20 +895,21 @@ async function fetchBackgroundMedia(forcedQuery, qualityKey) {
             : 'mountain landscape';
     }
 
-    // 1. Try Video first (High-quality motion footage)
-    try {
-        const videoMedia = await fetchVideo(query, qualityKey);
-        if (videoMedia) {
-            console.log('🎬 Using cinematic video background for:', query);
-            return videoMedia;
+    // 1. If Video mode explicitly selected, try video first
+    if (mode === 'video') {
+        try {
+            const videoMedia = await fetchVideo(query, qualityKey);
+            if (videoMedia) {
+                console.log('🎬 Using cinematic video background for:', query);
+                return videoMedia;
+            }
+        } catch (e) {
+            console.warn('Video fetch failed, falling back to image:', e);
         }
-    } catch (e) {
-        console.warn('Video fetch failed, falling back to image:', e);
     }
 
-    // 2. Fallback to Image
+    // 2. Default & Lightning-Fast: High-res images with Ken Burns pan/zoom motion
     try {
-        console.warn('📷 Falling back to high-res photo for:', query);
         const imgMedia = await fetchImage(query);
         if (imgMedia) return imgMedia;
     } catch (e) {
@@ -1085,7 +1087,10 @@ function seekVideo(v, t) {
                 v.removeEventListener('seeked', onSeek);
                 res();
             }
-        }, 120);
+        }, 40);
+        if (typeof v.fastSeek === 'function') {
+            try { v.fastSeek(safeT); return; } catch (e) { }
+        }
         v.currentTime = safeT;
     });
 }
@@ -1288,15 +1293,25 @@ async function handleGenerate() {
         }
         if (cancelled) throw '__CANCEL__';
 
-        // Phase 2: Background Media (Videos first, fallback to images)
-        updProg(20, '🎥 جاري البحث عن فيديوهات سينمائية مناسبة...');
+        // Phase 2: Background Media
+        const isVideoMode = $('mediaMode') && $('mediaMode').value === 'video';
+        if (isVideoMode) {
+            updProg(20, '🎥 جاري البحث عن مقطع فيديو سينمائي...');
+        } else {
+            updProg(20, '🖼️ جاري تحميل الصور السينمائية عالية الدقة...');
+        }
         usedMediaIds.clear();
         const totalScenes = ayahs.length;
 
+        // Smart Media Count:
+        // In image mode: 1 image per verse (up to 8 verses) for rich diversity
+        // In video mode: 1 or 2 videos max to keep download instant and lightweight
         const calcSmartMediaCount = (totalVerses) => {
-            if (totalVerses <= 3) return Math.min(2, totalVerses);
-            if (totalVerses <= 6) return 3;
-            return Math.min(4, Math.ceil(totalVerses / 2));
+            if (isVideoMode) {
+                return totalVerses <= 3 ? 1 : 2;
+            }
+            if (totalVerses <= 8) return totalVerses;
+            return Math.min(6, Math.ceil(totalVerses * 0.5));
         };
 
         const uniqueCount = calcSmartMediaCount(totalScenes);
@@ -1315,7 +1330,7 @@ async function handleGenerate() {
         if (videoCount > 0) {
             updProg(30, `تم تجهيز ${videoCount} فيديو سينمائي للخلفية بنجاح ✓`);
         } else {
-            updProg(30, 'تم تجهيز صور الخلفية عالية الدقة بنجاح ✓');
+            updProg(30, 'تم تجهيز الصور السينمائية المتحركة بنجاح ✓');
         }
 
         // Distribute media across scenes (round-robin reuse)

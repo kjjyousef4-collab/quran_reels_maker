@@ -128,7 +128,14 @@
 
                     <!-- Background -->
                     <div class="form-group">
-                        <label class="form-label" for="bgCategory" data-i18n="background">🎥 خلفية الفيديو (سينمائي)</label>
+                        <label class="form-label" for="mediaMode">🎬 نوع حركة الخلفية</label>
+                        <select id="mediaMode" class="select">
+                            <option value="image" selected>🖼️ صور سينمائية متحركة يمين ويسار (سريع جداً ⚡)</option>
+                            <option value="video">🎥 مقطع فيديو حي (HD - يستغرق وقتاً)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="bgCategory" data-i18n="background">🎨 تصنيف الخلفية</label>
                         <select id="bgCategory" class="select"></select>
                     </div>
                     <div class="form-group">
@@ -136,7 +143,7 @@
                         <select id="bgSubItem" class="select"></select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label" for="customSearchQuery">🔍 موضوع فيديو مخصص (اختياري)</label>
+                        <label class="form-label" for="customSearchQuery">🔍 موضوع مخصص (اختياري)</label>
                         <input type="text" id="customSearchQuery" class="input" placeholder="اكتب باللغة العربية أو الإنجليزية (مثال: مطر، كعبة، بحر، سحاب...)">
                         <small style="color: var(--color-text-secondary); font-size: 0.8rem; margin-top: 4px; display: block;">اتركه فارغاً للاعتماد التلقائي على نوع المشهد أعلاه</small>
                     </div>
